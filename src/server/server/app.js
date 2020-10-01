@@ -30,7 +30,9 @@ app.use(express.static(path.join(__dirname, "../../../", "build"))); // Ej. loca
 //require("../routes/index")(app); // si se envia una funcion desde el archivo index.js de routes, con parametro app. Modelo B
 app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
 app.use(require('../routes/authentication')) // accedo a las rutas del archivo autentication.js
-app.use(require('../routes/wildcards/App'))// Acedo a la ruta del subdominio App.enabletech.tech
+app.use(require('../routes/wildcards/App'))// Acedo a la ruta para subdominio app.enabletech.tech
+app.use(require('../routes/mail'))// La ruta para generar correos automaticos
+
 //app.use('/Links', require('../routes/links')) // acceso a las rutas del archivo links.js, PERO en el dominio le van a preceder la ruta localhost:3000/Links
 //app.use(require('../routes/vhost/index'))
 
