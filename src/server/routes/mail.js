@@ -14,7 +14,6 @@ router.post('/sndMail', (req, res) => {
     <li>name: ${email}</li>
     </ul>
     <p>${message}</p>`;
-     
 })
 const mails1 = [
   "fabioleono@gmail.com"
@@ -34,25 +33,14 @@ router.get("/sndMail", async(req, res) => {
 
   const message = `Test Correos 
   nodejs - nodemailer  
-  Cuentas: enable.com.co - enabletech.tech
+  Cuenta: ${process.env.MAIL_HOST}
   Servidor: Local - AWS Server `;
   const contHTML = `<h1>Email Automatico</h1>
     <ul>
     <p>${message}</p>`;
-  console.log(contHTML);
+//console.log(contHTML);
 
-  // CUENTA ENABLE.COM.CO
-  // host: mail.enable.com.co // MAIL_HOST
-  // user: enabletech@enable.com.co // MAIL_USER
-  // pass: 2808alejitas // MAIL_PASSWORD
-  // localhost , port:26, secure:false, rejectUnauthorized:false // MAIL_PORT, MAIL_SECURE, MAIL_AUTH
-  // AWS server , port:465, secure:true
-
-  // CUENTA ENABLETECH.TECH
-  // host: smtp.domain.com // MAIL_HOST
-  // user: info@enabletech.tech // MAIL_USER
-  // pass: 2808Alejitas // MAIL_PASSWORD
-  // localhost , port:587, secure:false, rejectUnauthorized:false // MAIL_PORT, MAIL_SECURE, MAIL_AUTH
+  
   // AWS server , port:465, secure:true
 
   // CREANDO Objeto de configuracion con variables de entorno
@@ -69,20 +57,19 @@ router.get("/sndMail", async(req, res) => {
     },
   };
 
-  console.log('objeto', objMail);
-
-  // GENERANDO el transport
-
-  const transporter = nodemailer.createTransport(objMail);
+  //console.log('objeto', objMail);
   const headerMail = {
     from: `" Enable Technologies ${process.env.MAIL_HOST} 👻" <${process.env.MAIL_USER}>`, // sender address
-    to: mails1.toString(), // list of receivers
-    subject: "Correo Pruebas ✔", // Subject line
+    to: mails2.toString(), // list of receivers
+    subject: `Correo Pruebas ${process.env.MAIL_HOST} ✔`, // Subject line
     text: "texto ", // plain text body
     html: contHTML, // html body
   };
   //console.log('header', headerMail);
-  
+  // GENERANDO el transport
+
+  const transporter = nodemailer.createTransport(objMail);
+
   // //envio el correo. Esto es un metodo asincrono
   try {
     const infoMailer = await transporter.sendMail(headerMail);
