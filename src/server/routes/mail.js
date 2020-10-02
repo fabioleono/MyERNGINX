@@ -1,5 +1,5 @@
 const { Router } = require('express')
-const { info } = require('node-sass')
+
 const nodemailer = require('nodemailer')
 
 const router = Router()
@@ -16,56 +16,82 @@ router.post('/sndMail', (req, res) => {
     <p>${message}</p>`;
      
 })
-const mails = ['fabioleon@msn.com', 'lgonzalez@enable.com.co', 'lramos@enable.com.co', 'lucho554@gmail.com', 'fabioleono@gmail.com']
-
-
+const mails1 = [
+  "fabioleono@gmail.com"
+];
+const mails2 = [
+  "fabioleon@msn.com",
+  "fabioleono@gmail.com",
+  "lramos@enable.com.co",
+  "lgonzalez@enable.com.co",
+  "lucho554@gmail.com",
+];
+//console.log("array ", mails1.toString());
 
 
 router.get("/sndMail", async(req, res) => {
   //const { name, email, message } = req.body;
-  
-  const message = "Correo de pruebas desde node localhost:3000";
+
+  const message = `Test Correos 
+  nodejs - nodemailer  
+  Cuentas: enable.com.co - enabletech.tech
+  Servidor: Local - AWS Server `;
   const contHTML = `<h1>Email Automatico</h1>
     <ul>
     <p>${message}</p>`;
-    //console.log(contHTML);
+  console.log(contHTML);
 
-    // Generando el transport. Objeto de configuracion
-    const transporter = nodemailer.createTransport({
-      host: "mail.enable.com.co",
-      port: 26,
-      secure: false,
-      auth: {
-        user: "enabletech@enable.com.co",
-        pass: process.env.MAIL_PASSWORD,
-      }, // con esta sentencia no bloquea el correo, ya que deberia salir desde el mismo dominio
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-    // envio el correo. Esto es un metodo asincrono
-    
+  // CUENTA ENABLE.COM.CO
+  // host: mail.enable.com.co // MAIL_HOST
+  // user: enabletech@enable.com.co // MAIL_USER
+  // pass: 2808alejitas // MAIL_PASSWORD
+  // localhost , port:26, secure:false, rejectUnauthorized:false // MAIL_PORT, MAIL_SECURE, MAIL_AUTH
+  // AWS server , port:465, secure:true
 
-    try{
-      const info = await transporter.sendMail({
-        from: '"enabletech.tech Server AWS 👻" <enabletech@enable.com.co>', // sender address
-        to: mails.toString(), // list of receivers
-        subject: "Test envio Correo ✔", // Subject line
-        text: "Test Texto Plano ", // plain text body
-        html: contHTML, // html body
-      });
-      //console.log("Message send", info.messageId);
-    
-    }catch (e){
-      console.log('error ', e);
-      
-    }
+  // CUENTA ENABLETECH.TECH
+  // host: smtp.domain.com // MAIL_HOST
+  // user: info@enabletech.tech // MAIL_USER
+  // pass: 2808Alejitas // MAIL_PASSWORD
+  // localhost , port:587, secure:false, rejectUnauthorized:false // MAIL_PORT, MAIL_SECURE, MAIL_AUTH
+  // AWS server , port:465, secure:true
 
-    
-    res.status(201).send({testCorreo: 'ok'})
+  // CREANDO Objeto de configuracion con variables de entorno
+  const objMail = {
+    host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT),
+    secure: Boolean(parseInt(process.env.MAIL_SECURE)),
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASSWORD,
+    }, // con esta sentencia no bloquea el correo, ya que deberia salir desde el mismo dominio
+    tls: {
+      rejectUnauthorized: Boolean(parseInt(process.env.MAIL_AUTH)),
+    },
+  };
 
-    
-    
+  console.log('objeto', objMail);
+
+  // GENERANDO el transport
+
+  const transporter = nodemailer.createTransport(objMail);
+  const headerMail = {
+    from: `" Enable Technologies ${process.env.MAIL_HOST} 👻" <${process.env.MAIL_USER}>`, // sender address
+    to: mails1.toString(), // list of receivers
+    subject: "Correo Pruebas ✔", // Subject line
+    text: "texto ", // plain text body
+    html: contHTML, // html body
+  };
+  //console.log('header', headerMail);
+  
+  // //envio el correo. Esto es un metodo asincrono
+  try {
+    const infoMailer = await transporter.sendMail(headerMail);
+    console.log("Message send", infoMailer.messageId);
+  } catch (e) {
+    console.log("error ", e);
+  }
+
+  res.status(201).send({ testCorreo: "ok" });
 });
 
 module.exports = router
@@ -97,17 +123,3 @@ module.exports = router
 //   messageId: '<4cdc96e3-15b5-e4e0-5e76-d4d21523b749@enable.com.co>'
 // } 
 
-
-// Servidor entrante:
-
-// mail.enable.com.co
-
-//   * IMAP Port: 143
-
-//   * POP3 Port: 110
-
-// Servidor de correo:
-
-// mail.enable.com.co
-
-//   * SMTP Port: 26
