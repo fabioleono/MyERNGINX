@@ -1,12 +1,12 @@
 require('dotenv').config()
 const mysql = require('mysql')
 const { promisify } = require('util')
-
+const config = require('./config')
 const database = {
-  host: "localhost",
-  user: "enable",
-  password: process.env.DB_PASSWORD,
-  database: "enable_gncv2",
+  host: config.host,
+  user: config.user,
+  password: config.password,
+  database: config.database,
   multipleStatements: true
 }; 
 // !!--- MODELO A . con el metodo createConnection()

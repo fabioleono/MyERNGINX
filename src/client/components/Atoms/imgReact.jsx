@@ -8,3 +8,4 @@ const ImgReact = () => {
   )
 }
 export default ImgReact
+

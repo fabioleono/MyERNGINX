@@ -1,6 +1,5 @@
 const userModel = require('../models/user')
 const jwt = require('jsonwebtoken');
-const { json } = require('express');
 const passport = require('passport')
 const ctrlAuth = {}
 
@@ -12,7 +11,7 @@ ctrlAuth.list = (req, res, next) => {
     
     if (!err) {
       res.status(200).json(data);
-      console.log('tipo de dato', typeof(data))
+      // console.log('tipo de dato', typeof(data))
     } else {
       console.log("Mysql Error: ", err);
 
@@ -28,6 +27,47 @@ ctrlAuth.list = (req, res, next) => {
 }
 
 
+ctrlAuth.login = (req, res, next) => {
+  //console.log(req.body);
+  const { user, pass } = req.body;
+  const ip = req.clientIp;
+  const userData = {
+    k_usuario: user,
+    d_password: pass,
+    d_ip: ip
+  };
+  //res.status(201).send({"response": "ok"})
+  console.log("req.body ", userData);
+
+  userModel.login(userData, (err, data) => {
+    if (!err) {
+        if (data.log === 0 || data.log === 1){
+        // creo el json webtoken
+        const token = jwt.sign({ id: user }, process.env.KEY_SECRET, {
+          expiresIn: 60 * 24 * 24, //expiracion del token en sg
+        });
+        // asocio el token al header
+        req.headers["x-access-token"] = token;
+        // console.log('headers3 ', req.headers);
+        data.token=token
+      }
+     res.status(200).json(data);
+
+    } else {
+      res.status(500).json({
+        sucess: false,
+        message: "Error ",
+        data
+      });
+    }
+  });
+};
+
+
+
+
+
+
 ctrlAuth.profile = (req, res, next) => {
   //  const token = req.headers['x-access-token']
   //   if(!token) {
@@ -38,7 +78,7 @@ ctrlAuth.profile = (req, res, next) => {
 
   //console.log("headers ", req.headers);
 
-  userUpdate = {
+  const userUpdate = {
     // k_usuario = decoded.id, // el usuario lo toma del token decodificado
     k_usuario: req.params.id,
     d_nombre: "Paola Gomez",
@@ -47,9 +87,10 @@ ctrlAuth.profile = (req, res, next) => {
     d_mail: "paolitagomez2@hotmail.com",
     r_ciudad: 150001,
   };
-  let model = "";
+  let model
   //console.log('Usuario ', userData);
   // si al servidor llega una solicitud GET, es por que se estan pidiendo los datos del usuario, si es POST es por que se esta pidiendo actualizar los datos del usuario
+  let userData
   if (req.method === "GET") {
     model = userModel.list;
     userData = req.params.id;
@@ -177,56 +218,6 @@ ctrlAuth.delete = (req, res, next) => {
   //   task: "Elimina el usuario",
   // });
 }
-
-ctrlAuth.login = (req, res, next) => {
-  
-  console.log('headers2 ', req.headers);
-   
-  const { user, pass, ip } = req.body
-  const jwtToken = ''
-  userData = {
-    k_usuario: user,
-    d_password: pass,
-    d_ip: ip,
-    d_session: jwtToken
-  }
-  //console.log('req.body ', userData);
-    
-  userModel.login(userData, (err, data) => {
-   if(!err){
-    // creo el json webtoken
-    const token = jwt.sign(
-      { id: userData.k_usuario },
-      process.env.KEY_SECRET,
-      {
-        expiresIn: 60 * 24 * 24, //expiracion del token en sg
-      }
-    );
-    // asocio el token al header
-    req.headers["x-access-token"] = token
-    console.log('headers3 ', req.headers);
-    
-    res.status(200).json({ 
-      sucess: true,
-      message: "Login OK", 
-      token:  req.headers["x-access-token"],
-      data: data 
-    });
-
-    //res.render('login', {name: 'test'}) // VERIFICAR la manera de renderizar un jsx (React) !!
-    //res.redirect(301, '/Profile'); // VERIFICAR manera de redireccionar desde backend con React 
-    
-   }else{
-    res.status(500).json({ 
-      sucess: false,
-      message: "Error ",
-      data: data 
-    });
-   }
-    
-  })
- 
-};
 
 
 module.exports = ctrlAuth

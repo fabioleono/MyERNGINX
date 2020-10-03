@@ -1,20 +1,23 @@
 const express = require("express");
 const path = require('path')
 const morgan = require('morgan');
-
+const requestIp = require("request-ip");
 
 const app = express()
 
 //settings
 app.set("port", process.env.PORT || 5000);
+//app.set("keySecret", process.env.KEY_SECRET)
 
 //middlewares
+
 
 
 //app.use(favicon(path.join(__dirname, "../", "public/images/favicon.png")));
 app.use(morgan('dev')) // ver el tipo de peticion y el tiempo de respuesta
 app.use(express.json()) // recibo las solicitudes json de los clientes
 app.use(express.urlencoded({extended:false})) // recibir datos de formularios y lo conviert en objetos de javascript
+app.use(requestIp.mw()); // encontrar Ip de cliente
 
 
 // static Files, carpeta public
@@ -30,6 +33,7 @@ app.use(express.static(path.join(__dirname, "../../../", "build"))); // Ej. loca
 //require("../routes/index")(app); // si se envia una funcion desde el archivo index.js de routes, con parametro app. Modelo B
 app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
 app.use(require('../routes/authentication')) // accedo a las rutas del archivo autentication.js
+app.use(require('../routes/certignv'))// Ruta al contents
 app.use(require('../routes/wildcards/App'))// Acedo a la ruta para subdominio app.enabletech.tech
 app.use(require('../routes/mail'))// La ruta para generar correos automaticos
 

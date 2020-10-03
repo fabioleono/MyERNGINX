@@ -7,15 +7,24 @@ const NavMenu = () => {
         <ul>
           <li>
             <NavLink to="/" exact>
-                Home
-              </NavLink>
+              Home
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/Users">Usuarios</NavLink>
+            <NavLink to="/Proyecto">Proyecto</NavLink>
           </li>
-          <li></li>
           <li>
-            <NavLink to="/Test">Test</NavLink>
+            <NavLink to="/Contacto">Contactenos</NavLink>
+          </li>
+          
+          <li>
+            <NavLink to="/Login">Certificadores</NavLink>
+          </li>
+          <li>
+            <NavLink to="/LoginPublic">Info Publica</NavLink>
+          </li>
+          <li>
+            <NavLink to="/Users">Test</NavLink>
           </li>
         </ul>
       </nav>
