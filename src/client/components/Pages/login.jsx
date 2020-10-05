@@ -40,7 +40,7 @@ const auth = e => {
       if (res.data.token) {
         localStorage.removeItem('tokenPublic')
         localStorage.setItem("token", res.data.token);
-        window.location = "/CertiGNV";
+        window.location.href = "/CertiGNV";
       } else {
         document.getElementById("msgError").innerHTML = res.data.message;
       }
