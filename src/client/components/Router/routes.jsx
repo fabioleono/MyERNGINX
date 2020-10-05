@@ -13,7 +13,7 @@ import CertiGNV from '../Pages/certiGNV'
 import Declared from './declared'
 import DeclaredPublic from './declaredPublic'
 import ProtectedPublic from './protectedPublic'
-import Info from '../Pages/loginPublic'
+import Info from '../Pages/info'
 
 
 

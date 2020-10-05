@@ -1,4 +1,29 @@
 import React from 'react' 
+import axios from "axios";
+const authPublic = e => {
+  // e.preventDefault();
+  e.preventDefault();
+  const url = `${process.env.REACT_APP_API_URL}/Login`
+  const dataForm = {
+    user: e.target.consumer.value,
+    pass: e.target.code.value,
+  };
+  axios.post(url, dataForm)
+  .then((res) => {
+    console.log('data', res.data);
+    if(res.data.token){
+      localStorage.removeItem("token");
+      localStorage.setItem('tokenPublic', res.data.token)
+      window.location='/Info'
+    }else{
+      document.getElementById('msgError').innerHTML=res.data.message
+    }
+    
+  })
+  .catch((e) => console.log('error axios', e))
+
+}
+
 const Info = () => {
   return (
     <div>
@@ -22,13 +47,13 @@ const Info = () => {
         Excepturi iusto, vitae sint nobis autem, ullam animi ex ratione amet
         veniam tempore.
       </p>
-      <form  >
+      <form  onSubmit={authPublic.bind()}>
         <label htmlFor="iden">
           Identificacion
           <input
             type="text"
-            name="iden"
-            id="iden"
+            name="consumer"
+            id="consumer"
             placeholder="Ingrese su usuario"
           />
         </label>

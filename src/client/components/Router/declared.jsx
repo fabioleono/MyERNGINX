@@ -4,7 +4,7 @@ const Declared = ({ component: Component , ...others}) => {
     
   if(localStorage.getItem("token")) return <Redirect to="/CertiGNV" />
   return (
-    <Route {...others} render={Component}/>
+    <Route {...others} component={Component}/>
   )
 }
 export default Declared

@@ -1,43 +1,56 @@
 
 import React from 'react' 
+import axios from 'axios' 
+
 
 const auth = e => {
   //console.log(e.target);
-  e.preventDefault()
-  const url = "/Login";
+  e.preventDefault();
+  //console.log("entorno ", process.env.REACT_APP_API_URL);
+  const url = `${process.env.REACT_APP_API_URL}/Login`;
 
   const dataForm = {
     user: e.target.user.value,
-    pass: e.target.pass.value
-  }
+    pass: e.target.pass.value,
+  };
   // console.log('dta', dataForm);
   // console.log("dta stringy", JSON.stringify(dataForm));
-  const myHeaders = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-    //'Content-Type': 'application/x-www-form-urlencoded',
-  };
-  const myInit = {
-    method: "POST",
-    body: JSON.stringify(dataForm),
-    headers: myHeaders,
-    // mode: "cors",
-    // cache: "default",
-  };
+
+  // const myInit = {
+  //   method: "POST",
+  //   body: JSON.stringify(dataForm),
+  // };
   // console.log(myInit);
- 
-  fetch(url, myInit)
-    .then((res) => res.json())
-    .then((json) => {
-      console.log(json);
-      if(json.token){
-        localStorage.setItem("token", json.token);
-        window.location="/CertiGNV"
-      }else{
-        document.getElementById('msgError').innerHTML=json.message
+
+  //   fetch(url, myInit)
+  //     .then((res) => res.json())
+  //     .then((json) => {
+  //       console.log(json);
+  //       if(json.token){
+  //         localStorage.setItem("token", json.token);
+  //         window.location="/Users"
+  //       }else{
+  //         document.getElementById('msgError').innerHTML=json.message
+  //       }
+  //     }).catch((e) => console.log(e));
+  axios
+    .post(url, dataForm)
+    .then((res) => {
+      //console.log(res);
+      if (res.data.token) {
+        localStorage.removeItem('tokenPublic')
+        localStorage.setItem("token", res.data.token);
+        window.location = "/CertiGNV";
+      } else {
+        document.getElementById("msgError").innerHTML = res.data.message;
       }
-    }).catch((e) => console.log(e));
+      console.log(res.data);
+    })
+    .catch((e) => console.log(e));
 }
+
+
+
 const Login = () => {
   return (
     <>

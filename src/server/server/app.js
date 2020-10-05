@@ -2,6 +2,7 @@ const express = require("express");
 const path = require('path')
 const morgan = require('morgan');
 const requestIp = require("request-ip");
+const cors = require('cors')
 
 const app = express()
 
@@ -18,19 +19,31 @@ app.use(morgan('dev')) // ver el tipo de peticion y el tiempo de respuesta
 app.use(express.json()) // recibo las solicitudes json de los clientes
 app.use(express.urlencoded({extended:false})) // recibir datos de formularios y lo conviert en objetos de javascript
 app.use(requestIp.mw()); // encontrar Ip de cliente
+app.use(cors())
+
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method"
+//   );
+//   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+//   res.header("Allow", "GET, POST, OPTIONS, PUT, DELETE");
+//   next();
+// });
+
 
 
 // static Files, carpeta public
 // en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con yarn build 
-app.use(express.static(path.join(__dirname, "../../../", "build"))); // Ej. localhost:3000/index.html
+app.use(express.static(path.join(__dirname, "../../../", "build"))); // 
 //app.use(express.static(path.join(__dirname, "../../../", "public"))); // Ej. localhost:3000/index.html
 
 //app.use('public', express.static(path.join(__dirname, "../", "public"))); // aca en el browser los archivos publicos seran disponibles desde localhost:3000/public/index.html
 
 // Routes
-//app.use(require("../routes/vhost/index"));
 
-//require("../routes/index")(app); // si se envia una funcion desde el archivo index.js de routes, con parametro app. Modelo B
+
 app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
 app.use(require('../routes/authentication')) // accedo a las rutas del archivo autentication.js
 app.use(require('../routes/certignv'))// Ruta al contents
