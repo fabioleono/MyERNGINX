@@ -9,7 +9,7 @@
 /coverage
 
 # production
-/build
+#/build
 
 # database
 /src/server/models/config.js
