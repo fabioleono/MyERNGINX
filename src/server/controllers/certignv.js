@@ -1,14 +1,15 @@
-const userModel = require('../models/user')
+const userProfile = require('../models/certignv')
 const ctrlCerti ={}
 
-ctrlCerti.list = (req, res, next) => {
-  let userData = "";
-  //if (req.params.id)  userData.k_usuario = req.params.id
+ctrlCerti.profile = (req, res, next) => {
+  let user=''
+  if(req.params.user) user = req.params.user
+  
 
-  userModel.list(userData, (err, data) => {
+  userProfile.list(user, (err, data) => {
     if (!err) {
       res.status(200).json(data);
-      console.log('tipo de dato', typeof(data))
+      //console.log('tipo de dato', typeof(data))
       //console.log(data);
       
     } else {
@@ -22,5 +23,8 @@ ctrlCerti.list = (req, res, next) => {
     }
   });
 };
+
+
+
 
 module.exports = ctrlCerti

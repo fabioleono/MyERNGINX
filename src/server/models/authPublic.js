@@ -1,11 +1,11 @@
 const db = require("./index");
 //const helpers = require('../helpers/index')
 
-const userModel = {};
+const userModelPublic = {};
 
-userModel.list = (userData, cb) => {
-  let sql = "SELECT k_usuario as user, d_nombre as name, n_cedula as id, d_direccion as address, d_telefono as tel, n_estado as state, f_registro as regdate, d_correo as mail, f_password as passdate, gnv_t_ciudad.d_ciudad as city FROM gnv_t_usuario LEFT JOIN gnv_t_ciudad ON gnv_t_ciudad.k_ciudad=gnv_t_usuario.r_ciudad ";
-  if (userData !== "") sql += ` WHERE k_usuario=${db.escape(userData)} `;
+userModelPublic.list = (userData, cb) => {
+  let sql = "SELECT k_registro as user, d_nombre_usuario as name, d_direccion as address, n_telefono as tel, n_estado as state, f_registro as regdate, d_correo as mail, f_password as passdate, gnv_t_ciudad.d_ciudad as city FROM gnv_t_registro LEFT JOIN gnv_t_ciudad ON gnv_t_ciudad.k_ciudad=gnv_t_registro.r_ciudad ";
+  if (userData !== "") sql += ` WHERE k_registro=${db.escape(userData)} `;
   // console.log(sql);
 
   db.query(sql, (err, result) => {
@@ -28,19 +28,20 @@ userModel.list = (userData, cb) => {
 };
 
 
-userModel.login = (userData, cb) => {
+userModelPublic.login = (userData, cb) => {
   
   const sql = `
             SET @user = ?;
             SET @password = ?;
             SET @address = ?;
             SET @id = ?;
-            CALL gnv_p_user_login(@user, @password, @address, @id, @login, @name, @lastDate, @ip, @message, @master, @type);
-            SELECT @login AS log, @name AS name, @lastDate AS lastDate, @ip AS ip, @message AS message, @master AS master, @type AS type; 
+            CALL gnv_p_public_login(@user, @password, @address, @id, @login, @name, @lastDate, @ip, @message);
+            SELECT @login AS log, @name AS name, @lastDate AS lastDate, @ip AS ip, @message AS message; 
             `;
  // console.log('query ', sql);
   const data = {};
-  db.query(sql, [userData.k_usuario, userData.d_password, userData.d_ip, userData.d_session], (err, result, fields) => {
+  data.consumer = userData.k_registro
+  db.query(sql, [userData.k_registro, userData.d_password, userData.d_ip, userData.d_session], (err, result, fields) => {
    // console.log('result', result);
     if(err){
       cb(err, { status: "ERROR QUERY ", data: err })
@@ -53,8 +54,7 @@ userModel.login = (userData, cb) => {
           data.lastDate = e.lastDate;
           data.ip = e.ip;
           data.message = e.message;
-          data.master = e.master;
-          data.type = e.type;
+          
         });
       cb(null, data);
     }
@@ -63,7 +63,7 @@ userModel.login = (userData, cb) => {
 
 
 
-// userModel.insert = (userPass, cb) => {
+// userModelPublic.insert = (userPass, cb) => {
 //   // CON PROCEDIMIENTOS
 //   //const pass = await helpers.encrypt(userData.d_password);
 //   //console.log('pass ', pass);
@@ -136,64 +136,5 @@ userModel.login = (userData, cb) => {
 //   );
 // };
 
-userModel.update = (userData, cb) => {
-  /*
-  const sql = `UPDATE gnv_t_usuario SET 
-        d_nombre=${db.escape(userData.d_nombre)},
-        d_direccion=${db.escape(userData.d_direccion)}
-        WHERE 
-        k_usuario=${db.escape(userData.k_usuario)}
-        `
-// Metodo db.escape para evitar inyeccion de SQL
 
-*/
-  // CON PROCEDIMIENTOS
-
-  const sql = ` 
-        SET @user = ?;
-        SET @name = ?;
-        SET @address = ?;
-        SET @tel = ?;
-        SET @mail = ?;
-        SET @city = ?;
-        CALL gnv_p_user_edit(@user, @name, @address, @tel, @mail, @city);
-        `;
-
-  db.query(
-    sql,
-    [
-      userData.k_usuario,
-      userData.d_nombre,
-      userData.d_direccion,
-      userData.d_telefono,
-      userData.d_mail,
-      userData.r_ciudad,
-    ],
-    (err, result, fields) => {
-      if (err) {
-        //throw err
-        cb(err, { status: "ERROR QUERY", data: err });
-      } else {
-        cb(null, { status: "UPDATE OK", data: result, fields: fields });
-      }
-    }
-  );
-};
-
-userModel.delete = (userData, cb) => {
-  //LA VALIDACION DE LA EXISTENCIA DEL USUARIO LA VALIDARIA EL PROCEDIMIENTO MYSQL
-  const sql = `DELETE FROM gnv_t_usuario WHERE k_usuario=${db.escape(
-    userData.k_usuario
-  )} `;
-  console.log(sql);
-
-  db.query(sql, (err, result) => {
-    if (err) {
-      cb(err, { status: "ERROR QUERY", data: err });
-    } else {
-      cb(null, { status: "DELETE OK", data: result });
-    }
-  });
-};
-
-module.exports = userModel;
+module.exports = userModelPublic;

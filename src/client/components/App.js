@@ -4,12 +4,11 @@ import Routes from './Router/routes'
 
 const App = () => {
   return (
-    <div>
-      STACK MyERN
-      <Router>
+    <>
+       <Router>
         <Routes />
       </Router> 
-    </div>
+    </>
   )
 }
 export default App

@@ -7,12 +7,12 @@ import Users from '../Pages/users'
 import Header from '../Templates/header'
 import Contact from '../Pages/contact'
 import Project from '../Pages/project'
-import Protected from './protected'
 import Workshops from '../Pages/workshops'
 import CertiGNV from '../Pages/certiGNV'
-import Declared from './declared'
-import DeclaredPublic from './declaredPublic'
-import ProtectedPublic from './protectedPublic'
+import Public from './public'
+import PublicInfo from './publicInfo'
+import Protected from "./protected";
+import ProtectedInfo from './protectedInfo'
 import Info from '../Pages/info'
 
 
@@ -25,11 +25,11 @@ const Routes = () => {
         <Route path="/" exact component={Home} />
         <Route path="/Proyecto" component={Project} />
         <Route path="/Contacto" component={Contact} />
-        <Route path="/Users" component={Users} />
-        <DeclaredPublic path="/LoginPublic" component={LoginPublic} />
-        <Declared path="/Login" component={Login} />
-        <ProtectedPublic path="/Info" component={Info} />
-        <Protected path="/CertiGNV" component={CertiGNV} />
+        <Route path="/Users" component={Users} /> 
+        <PublicInfo path="/LoginPublic" component={LoginPublic} />
+        <Public path="/Login" component={Login} />
+        <ProtectedInfo path="/Info/:consumer" component={Info} />
+        <Protected path="/CertiGNV/:user" component={CertiGNV} />
         <Protected path="/TallerGNV" component={Workshops} />
         <Route
           component={() => (

@@ -3,10 +3,10 @@ import axios from "axios";
 const authPublic = e => {
   // e.preventDefault();
   e.preventDefault();
-  const url = `${process.env.REACT_APP_API_URL}/Login`
+  const url = `${process.env.REACT_APP_API_URL}/LoginPublic`
   const dataForm = {
-    user: e.target.consumer.value,
-    pass: e.target.code.value,
+    consumer: e.target.consumer.value,
+    code: e.target.code.value,
   };
   axios.post(url, dataForm)
   .then((res) => {
@@ -14,7 +14,8 @@ const authPublic = e => {
     if(res.data.token){
       localStorage.removeItem("token");
       localStorage.setItem('tokenPublic', res.data.token)
-      window.location='/Info'
+      window.location.href = `/Info/${res.data.consumer}`;
+      
     }else{
       document.getElementById('msgError').innerHTML=res.data.message
     }
@@ -47,17 +48,17 @@ const Info = () => {
         Excepturi iusto, vitae sint nobis autem, ullam animi ex ratione amet
         veniam tempore.
       </p>
-      <form  onSubmit={authPublic.bind()}>
-        <label htmlFor="iden">
-          Identificacion
+      <form id="formulario" onSubmit={authPublic.bind()}>
+        <label htmlFor="user">
+          Identificación
           <input
             type="text"
             name="consumer"
             id="consumer"
-            placeholder="Ingrese su usuario"
+            placeholder="Ingrese su Identificacion"
           />
         </label>
-        <label htmlFor="code">
+        <label htmlFor="pass">
           Clave
           <input
             type="password"
@@ -69,6 +70,7 @@ const Info = () => {
         <input type="submit" value="Enviar" />
       </form>
       <div id="msgError"></div>
+      
     </div>
   );
 }

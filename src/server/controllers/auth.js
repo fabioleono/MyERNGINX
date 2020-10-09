@@ -1,11 +1,15 @@
-const userModel = require('../models/user')
+const userModel = require('../models/auth')
 const jwt = require('jsonwebtoken');
 const passport = require('passport')
 const ctrlAuth = {}
 
 ctrlAuth.list = (req, res, next) => {
+  //console.log('solicitud ', req);
+  //console.log('respuesta ', res);
+  
+  
   let userData = ''
-  //if (req.params.id)  userData.k_usuario = req.params.id
+  if (req.params.user)  userData = req.params.user
   
   userModel.list(userData, (err, data) => {
     
@@ -68,7 +72,7 @@ ctrlAuth.login = (req, res, next) => {
 
 
 
-ctrlAuth.profile = (req, res, next) => {
+ctrlAuth.update = (req, res, next) => {
   //  const token = req.headers['x-access-token']
   //   if(!token) {
   //     return res.status(401).json({auth: 'NOT AUTHORIZED'})
@@ -80,7 +84,7 @@ ctrlAuth.profile = (req, res, next) => {
 
   const userUpdate = {
     // k_usuario = decoded.id, // el usuario lo toma del token decodificado
-    k_usuario: req.params.id,
+    k_usuario: req.params.user,
     d_nombre: "Paola Gomez",
     d_direccion: "Villaviciencio",
     d_telefono: "3142887855",
