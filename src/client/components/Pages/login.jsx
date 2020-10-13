@@ -5,7 +5,8 @@ const auth = e => {
   //console.log(e.target);
   e.preventDefault();
   //console.log("entorno ", process.env.REACT_APP_API_URL);
-  const url = `${process.env.REACT_APP_API_URL}/Login`;
+  const url = `${process.env.REACT_APP_API_URL}/login`;
+console.log('URL', url);
 
   const dataForm = {
     user: e.target.user.value,
@@ -35,11 +36,11 @@ const auth = e => {
   axios
     .post(url, dataForm)
     .then((res) => {
-      //console.log(res);
+      console.log(res);
       if (res.data.token) {
         localStorage.removeItem('tokenPublic')
         localStorage.setItem("token", res.data.token);
-        window.location.href = `/CertiGNV/${res.data.user}`;
+        window.location = `/certignv/${res.data.user}`;
       } else {
         document.getElementById("msgError").innerHTML = res.data.message;
       }

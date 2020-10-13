@@ -1,4 +1,4 @@
-const userModel = require('../models/authPublic')
+const userModel = require('../../models/v1/authPublic')
 const jwt = require('jsonwebtoken');
 const passport = require('passport')
 const ctrlAuthPublic = {}

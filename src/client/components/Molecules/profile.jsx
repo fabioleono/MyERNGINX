@@ -6,10 +6,10 @@ const subMenu = createRef()
 const log_Out = () => {
   if(localStorage.getItem("token")){
     localStorage.removeItem("token");
-    window.location = "/Login";
+    window.location = "/login";
   }else{
     localStorage.removeItem("tokenPublic");
-    window.location = "/LoginPublic";
+    window.location = "/loginPublic";
   }
     
   }

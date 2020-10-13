@@ -5,7 +5,7 @@ const PublicMenu = () => {
   return (
     <>
       <li>
-        <NavLink to="/Login">Certificadores</NavLink>
+        <NavLink to="/login">Certificadores</NavLink>
       </li>
     </>
   );

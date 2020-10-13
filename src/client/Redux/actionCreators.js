@@ -3,7 +3,7 @@ import { GET_ALL_PROFILES, GET_ALL_PUBLICS, GET_ALL_USERS, GET_PROFILE, GET_PUBL
 const url = process.env.REACT_APP_API_URL
 
 export const getAllProfiles = () => dispatch => {
-  axios.get(`${url}/CertiGNV`).then((res) => {
+  axios.get(`${url}/certignv`).then((res) => {
     return dispatch({
       type: GET_ALL_PROFILES,
       profiles: res.data,
@@ -12,7 +12,7 @@ export const getAllProfiles = () => dispatch => {
 }
 
 export const getProfile = (user) => (dispatch) => {
-  axios.get(`${url}/CertiGNV/${user}`).then((res) => {
+  axios.get(`${url}/certignv/${user}`).then((res) => {
     console.log("data dispatch", res.data);
     return dispatch({
       type: GET_PROFILE,
@@ -23,7 +23,7 @@ export const getProfile = (user) => (dispatch) => {
 };
 
 export const getAllPublics = () => (dispatch) => {
-  axios.get(`${url}/Info`).then((res) => {
+  axios.get(`${url}/info`).then((res) => {
     return dispatch({
       type: GET_ALL_PUBLICS,
       infos: res.data,
@@ -32,7 +32,7 @@ export const getAllPublics = () => (dispatch) => {
 };
 
 export const getPublic = (consumer) => (dispatch) => {
-  axios.get(`${url}/Info/${consumer}`).then((res) => {
+  axios.get(`${url}/info/${consumer}`).then((res) => {
     console.log("data dispatch", res.data);
     return dispatch({
       type: GET_PUBLIC,
@@ -45,7 +45,7 @@ export const getPublic = (consumer) => (dispatch) => {
 
 
 export const getAllUsers = () => (dispatch) => {
-  axios.get(`${url}/Users`)
+  axios.get(`${url}/users`)
   .then(res => {
     return dispatch({
       type: GET_ALL_USERS,
@@ -55,7 +55,7 @@ export const getAllUsers = () => (dispatch) => {
 };
 
 export const getUser = (user) => (dispatch) => {
-  axios.get(`${url}/Users/${user}`).then((res) => {
+  axios.get(`${url}/users/${user}`).then((res) => {
     return dispatch({
       type: GET_USER,
       user: res.data,

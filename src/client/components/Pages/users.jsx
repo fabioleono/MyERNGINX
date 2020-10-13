@@ -18,7 +18,9 @@ class Users extends Component {
   }
 
 getUser() {
-  const url=`${process.env.REACT_APP_API_URL}/Users`
+  const url=`${process.env.REACT_APP_API_URL}/users`
+  console.log('URL ', url);
+  
   fetch(url)
     .then((res) => res.json())
     .then((json) => {

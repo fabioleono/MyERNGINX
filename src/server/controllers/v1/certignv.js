@@ -1,4 +1,4 @@
-const userProfile = require('../models/certignv')
+const userProfile = require('../../models/v1/certignv')
 const ctrlCerti ={}
 
 ctrlCerti.profile = (req, res, next) => {

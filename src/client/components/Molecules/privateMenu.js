@@ -9,7 +9,7 @@ console.log('usuario menu', user);
   return (
     <>
       <li>
-        <NavLink to={`/CertiGNV/${user}`}>Certificadores</NavLink>
+        <NavLink to={`/certignv/${user}`}>Certificadores</NavLink>
       </li>
     </>
   );

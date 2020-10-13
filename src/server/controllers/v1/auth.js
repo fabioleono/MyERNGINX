@@ -1,4 +1,4 @@
-const userModel = require('../models/auth')
+const userModel = require('../../models/v1/auth')
 const jwt = require('jsonwebtoken');
 const passport = require('passport')
 const ctrlAuth = {}
@@ -14,7 +14,8 @@ ctrlAuth.list = (req, res, next) => {
   userModel.list(userData, (err, data) => {
     
     if (!err) {
-      res.status(200).json(data);
+      //res.status(200).json(data);
+      res.status(200).send(data)
       // console.log('tipo de dato', typeof(data))
     } else {
       console.log("Mysql Error: ", err);

@@ -1,4 +1,4 @@
-const appModel = require('../../models/wildcards/App')
+const appModel = require('../../../models/v1/wildcards/App')
 const ctrlApp = {}
 
 ctrlApp.list = (req, res, next) => {

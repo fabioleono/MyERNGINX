@@ -3,7 +3,7 @@ import axios from "axios";
 const authPublic = e => {
   // e.preventDefault();
   e.preventDefault();
-  const url = `${process.env.REACT_APP_API_URL}/LoginPublic`
+  const url = `${process.env.REACT_APP_API_URL}/loginpublic`
   const dataForm = {
     consumer: e.target.consumer.value,
     code: e.target.code.value,
@@ -14,7 +14,7 @@ const authPublic = e => {
     if(res.data.token){
       localStorage.removeItem("token");
       localStorage.setItem('tokenPublic', res.data.token)
-      window.location.href = `/Info/${res.data.consumer}`;
+      window.location.href = `/info/${res.data.consumer}`;
       
     }else{
       document.getElementById('msgError').innerHTML=res.data.message

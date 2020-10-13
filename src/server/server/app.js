@@ -3,7 +3,7 @@ const path = require('path')
 const morgan = require('morgan');
 const requestIp = require("request-ip");
 const cors = require('cors')
-const helmet = require('helmet')
+//const helmet = require('helmet')
 
 const app = express()
 
@@ -13,10 +13,19 @@ app.set("port", process.env.PORT || 5000);
 
 //middlewares
 
-
-
 //app.use(favicon(path.join(__dirname, "../", "public/images/favicon.png")));
-app.use(morgan('combined')) // ver el tipo de peticion y el tiempo de respuesta
+
+//app.use(morgan('combined')) // ver el tipo de peticion y el tiempo de respuesta
+// ver la respuesta de morgan bajo formato propio. TODAS
+// ":status :total-time :date[iso] :remote-addr :remote-user :method :url :req[header] :http-version :referrer :user-agent :res[header] :response-time "
+
+app.use(
+  morgan(
+    ":method || :url || :status || :remote-addr || :remote-user || :req[header] || :referrer || :res[header] || :response-time"
+  )
+);
+
+
 //app.use(helmet())
 // app.use(
 //   helmet({
@@ -33,26 +42,28 @@ app.use(morgan('combined')) // ver el tipo de peticion y el tiempo de respuesta
 //     xssFilter:false,
 //   })
 // );
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: [
-        "'self'",
-        "https://fonts.googleapis.com/",
-        "https://fonts.gstatic.com/",
-      ],
-      scriptSrc: [
-        "'self'",
-        "'sha256-s1eR4HA1RGXCCWhJqz18kkFqCQ4RBNXjAPyvQ2lQtrU='",
-        "'sha256-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
-        "'sha256-4Su6mBWzEIFnH4pAGMOuaeBrstwJN4Z3pq/s1Kn4/KQ='",
-        "'nonce-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
-      ],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  })
-);
+
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     directives: {
+//       defaultSrc: [
+//         "'self'",
+//         "https://fonts.googleapis.com/",
+//         "https://fonts.gstatic.com/",
+//       ],
+//       scriptSrc: [
+//         "'self'",
+//         "'sha256-s1eR4HA1RGXCCWhJqz18kkFqCQ4RBNXjAPyvQ2lQtrU='",
+//         "'sha256-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
+//         "'sha256-4Su6mBWzEIFnH4pAGMOuaeBrstwJN4Z3pq/s1Kn4/KQ='",
+//         "'nonce-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
+//       ],
+//       objectSrc: ["'none'"],
+//       upgradeInsecureRequests: [],
+//     },
+//   })
+// );
+
 app.use(express.json()) // recibo las solicitudes json de los clientes
 app.use(express.urlencoded({extended:false})) // recibir datos de formularios y lo conviert en objetos de javascript
 app.use(requestIp.mw()); // encontrar Ip de cliente
@@ -73,23 +84,28 @@ app.use(cors())
 
 // static Files, carpeta public
 // en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con yarn build 
-app.use(express.static(path.join(__dirname, "../../../", "build"))); // 
+// 
+app.use(express.static(path.join(__dirname, "../../../", "build"))); 
 //app.use(express.static(path.join(__dirname, "../../../", "public"))); // Ej. localhost:3000/index.html
 
 //app.use('public', express.static(path.join(__dirname, "../", "public"))); // aca en el browser los archivos publicos seran disponibles desde localhost:3000/public/index.html
 
-// Routes
-
-
-app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
-app.use(require('../routes/authentication')) // accedo a las rutas del archivo autentication.js
-app.use(require('../routes/authPublic')) // accedo a las rutas del archivo autentication.js
-app.use(require('../routes/certignv'))// Ruta al contents
-app.use(require('../routes/wildcards/App'))// Acedo a la ruta para subdominio app.enabletech.tech
-app.use(require('../routes/mail'))// La ruta para generar correos automaticos
+const version = process.env.API_VERSION
+const api = `${process.env.API}${version}`
+//app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
+app.use(api, require(`../routes${version}/authentication`)); //rutas de Autenticacion y Login 
+app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticacion y login Usuario Info Publica
+app.use(api, require(`../routes${version}/certignv`));// Ruta del menu certignv
+app.use(api, require(`../routes${version}/wildcards/App`));// Acedo a la ruta para subdominio app.enabletech.tech
+app.use(api, require(`../routes${version}/mail`));// La ruta para generar correos automaticos (Pruebas)
+// app.get('*',(req,res)=>{res.redirect('/')})
+// router.get("*", (req, res) => {
+//   res.status(404).send("error 404");
+// });
 
 //app.use('/Links', require('../routes/links')) // acceso a las rutas del archivo links.js, PERO en el dominio le van a preceder la ruta localhost:3000/Links
 //app.use(require('../routes/vhost/index'))
+
 
 
 module.exports = app

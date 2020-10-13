@@ -5,19 +5,19 @@ const nodemailer = require('nodemailer')
 const router = Router()
 
 
-router.post('/sndMail', (req, res) => {
+// router.post('/sndmail', (req, res) => {
 
-  // const { name, email, message } = req.body
-  // const contHTML = `<h1>Email Automatico</h1>
-  //   <ul>
-  //   <li>name: ${name}</li>
-  //   <li>name: ${email}</li>
-  //   </ul>
-  //   <p>${message}</p>`;
-})
-const mails1 = [
-  "fabioleono@gmail.com"
-];
+//   // const { name, email, message } = req.body
+//   // const contHTML = `<h1>Email Automatico</h1>
+//   //   <ul>
+//   //   <li>name: ${name}</li>
+//   //   <li>name: ${email}</li>
+//   //   </ul>
+//   //   <p>${message}</p>`;
+// })
+// const mails1 = [
+//   "fabioleono@gmail.com"
+// ];
 const mails2 = [
   "fabioleon@msn.com",
   "fabioleono@gmail.com",
@@ -28,7 +28,7 @@ const mails2 = [
 //console.log("array ", mails1.toString());
 
 
-router.get("/sndMail", async(req, res) => {
+router.get("/sndmail", async(req, res) => {
   //const { name, email, message } = req.body;
 
   const message = `Test Correos 

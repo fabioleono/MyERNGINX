@@ -19,10 +19,10 @@ const NavMenu = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/Proyecto">Proyecto</NavLink>
+              <NavLink to="/proyecto">Proyecto</NavLink>
             </li>
             <li>
-              <NavLink to="/Contacto">Contactenos</NavLink>
+              <NavLink to="/contacto">Contactenos</NavLink>
             </li>
 
             {localStorage.getItem("token") ? <PrivateMenu /> : <PublicMenu />}
@@ -33,7 +33,7 @@ const NavMenu = () => {
             )}
 
             <li>
-              <NavLink to="/Users">Test</NavLink>
+              <NavLink to="/users">Test</NavLink>
             </li>
           </ul>
         </nav>

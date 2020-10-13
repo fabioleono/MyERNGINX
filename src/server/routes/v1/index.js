@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const ctrl = require('../controllers/index')
+const ctrl = require('../../controllers/v1/index')
 
 
 router.get('/', ctrl.root) // Con REACT, a la raiz se llega por medio del staticFiles del server

@@ -23,14 +23,14 @@ const Routes = () => {
       <Header />
       <Switch>
         <Route path="/" exact component={Home} />
-        <Route path="/Proyecto" component={Project} />
-        <Route path="/Contacto" component={Contact} />
-        <Route path="/Users" component={Users} /> 
-        <PublicInfo path="/LoginPublic" component={LoginPublic} />
-        <Public path="/Login" component={Login} />
-        <ProtectedInfo path="/Info/:consumer" component={Info} />
-        <Protected path="/CertiGNV/:user" component={CertiGNV} />
-        <Protected path="/TallerGNV" component={Workshops} />
+        <Route path="/proyecto" exact component={Project} />
+        <Route path="/contacto" exact component={Contact} />
+        <Route path="/users" exact component={Users} /> 
+        <PublicInfo path="/loginpublic" exact component={LoginPublic} />
+        <Public path="/login" exact component={Login} />
+        <ProtectedInfo path="/info/:consumer" component={Info} />
+        <Protected path="/certignv/:user" component={CertiGNV} />
+        <Protected path="/tallergnv" component={Workshops} />
         <Route
           component={() => (
             <div>

@@ -1,4 +1,4 @@
-//const db = require("../models/index"); // requiero la coneccion a la base de datos
+//const db = require("../../models/v1/index"); // requiero la coneccion a la base de datos
 const ctrl = {} // creo el objeto controlador
 
 // creo las funciones para ese controlador

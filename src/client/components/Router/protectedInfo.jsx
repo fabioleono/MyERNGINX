@@ -4,6 +4,6 @@ const ProtectedPublic = ({ component: Component, ...others }) => { // recibo el 
   
   if (localStorage.getItem("tokenPublic"))
     return <Route {...others} component={Component} />; // render se utiliza igual que component
-  return <Redirect to="/LoginPublic" />;
+  return <Redirect to="/loginpublic" />;
 }
 export default ProtectedPublic
