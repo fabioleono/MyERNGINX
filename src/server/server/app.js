@@ -85,7 +85,7 @@ app.use(cors())
 // static Files, carpeta public
 // en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con yarn build 
 // 
-app.use(express.static(path.join(__dirname, "../../../", "build"))); 
+
 //app.use(express.static(path.join(__dirname, "../../../", "public"))); // Ej. localhost:3000/index.html
 
 //app.use('public', express.static(path.join(__dirname, "../", "public"))); // aca en el browser los archivos publicos seran disponibles desde localhost:3000/public/index.html
@@ -102,9 +102,21 @@ app.use(api, require(`../routes${version}/mail`));// La ruta para generar correo
 // router.get("*", (req, res) => {
 //   res.status(404).send("error 404");
 // });
+app.use(express.static(path.join(__dirname, "../../../", "build"))); 
+const routesReact = ['/proyecto', '/contacto', '/login', '/certignv', '/certignv/:user', '/loginpublic', '/users', '/info', '/info/:consumer']
+routesReact.map(e => {
+  return app.use( e ,express.static(path.join(__dirname, "../../../", "build")));
+})
 
-//app.use('/Links', require('../routes/links')) // acceso a las rutas del archivo links.js, PERO en el dominio le van a preceder la ruta localhost:3000/Links
-//app.use(require('../routes/vhost/index'))
+
+// () => {}
+// app.use("/proyecto", express.static(path.join(__dirname, "../../../", "build")));
+// app.use("/certignv", express.static(path.join(__dirname, "../../../", "build")));
+// app.use("/certignv/:user", express.static(path.join(__dirname, "../../../", "build")));
+//
+
+
+
 
 
 
