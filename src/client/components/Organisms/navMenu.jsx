@@ -42,7 +42,7 @@ const NavMenu = () => {
           <Profile />
         ) : (
           <div className="user_Profile">
-            <img src="/images/favicon.png" alt="" height="48px" width="48px" />
+            {/* <img src="/images/favicon.png" alt="" height="48px" width="48px" /> */}
           </div>
         )}
       </div>

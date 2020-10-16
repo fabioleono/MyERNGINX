@@ -7,6 +7,7 @@ import { getPublic } from "./client/Redux/actionCreators";
 
 import store  from "./client/Redux/store";
 import "./styles/styles.scss";
+import "./styles/app.css";
 
 console.log('env', process.env);
 

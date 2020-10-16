@@ -7,11 +7,11 @@ const cors = require('cors')
 
 const app = express()
 
-//settings
+// SETTINGS
 app.set("port", process.env.PORT || 5000);
 //app.set("keySecret", process.env.KEY_SECRET)
 
-//middlewares
+// MIDDLEWARES
 
 //app.use(favicon(path.join(__dirname, "../", "public/images/favicon.png")));
 
@@ -25,7 +25,7 @@ app.use(
   )
 );
 
-
+// SECURITY
 //app.use(helmet())
 // app.use(
 //   helmet({
@@ -80,16 +80,7 @@ app.use(cors())
 //   next();
 // });
 
-
-
-// static Files, carpeta public
-// en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con yarn build 
-// 
-
-//app.use(express.static(path.join(__dirname, "../../../", "public"))); // Ej. localhost:3000/index.html
-
-//app.use('public', express.static(path.join(__dirname, "../", "public"))); // aca en el browser los archivos publicos seran disponibles desde localhost:3000/public/index.html
-
+// ROUTES
 const version = process.env.API_VERSION
 const api = `${process.env.API}${version}`
 //app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
@@ -98,26 +89,22 @@ app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticaci
 app.use(api, require(`../routes${version}/certignv`));// Ruta del menu certignv
 app.use(api, require(`../routes${version}/wildcards/App`));// Acedo a la ruta para subdominio app.enabletech.tech
 app.use(api, require(`../routes${version}/mail`));// La ruta para generar correos automaticos (Pruebas)
+
+// STATIC FILES
+// en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con npm run build 
+app.use(express.static(path.join(__dirname, "../../../", "build"))); 
+
+//console.log('rutas React ', require('../routes/v1/react'));
+require("../routes/v1/react").map((e) => {
+  return app.use(e, express.static(path.join(__dirname, "../../../", "build")));
+});
+// app.use("/proyecto", express.static(path.join(__dirname, "../../../", "build")));
+// app.use("/certignv", express.static(path.join(__dirname, "../../../", "build")));
+// app.use("/certignv/:user", express.static(path.join(__dirname, "../../../", "build")));
 // app.get('*',(req,res)=>{res.redirect('/')})
 // router.get("*", (req, res) => {
 //   res.status(404).send("error 404");
 // });
-app.use(express.static(path.join(__dirname, "../../../", "build"))); 
-const routesReact = ['/proyecto', '/contacto', '/login', '/certignv', '/certignv/:user', '/loginpublic', '/users', '/info', '/info/:consumer']
-routesReact.map(e => {
-  return app.use( e ,express.static(path.join(__dirname, "../../../", "build")));
-})
-
-
-// () => {}
-// app.use("/proyecto", express.static(path.join(__dirname, "../../../", "build")));
-// app.use("/certignv", express.static(path.join(__dirname, "../../../", "build")));
-// app.use("/certignv/:user", express.static(path.join(__dirname, "../../../", "build")));
-//
-
-
-
-
 
 
 module.exports = app
