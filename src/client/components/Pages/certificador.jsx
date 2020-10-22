@@ -1,10 +1,12 @@
+
+
 import React, { useEffect } from "react";
 import { getProfile } from "../../Redux/actionCreators";
-import store from "../../Redux/store";
+import { store } from "../../Redux/store";
 import { connect } from "react-redux";
 
 
-const CertiGNV = ({ match, profile, user }) => {
+const Certificador = ({ match, profile, user }) => {
   //const user = match.params.user
   console.log("usuario Login", user);
   // let menu;
@@ -49,4 +51,4 @@ const mapStateToProps = (state) => ({
   profile: state.profileReducer.profile,
   user: state.profileReducer.user,
 });
-export default connect(mapStateToProps, {})(CertiGNV);
+export default connect(mapStateToProps, {})(Certificador);

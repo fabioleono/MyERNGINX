@@ -6,7 +6,7 @@ const Public = ({ component: Component , user, ...others}) => {
   // console.log('componente ' , Component);
   // console.log("otros ", others);
 
-const path=`/certignv/${user}`
+const path=`/certificador/${user}`
 console.log('path ', path);
  
   if(localStorage.getItem("token")) return <Redirect to={path} />

@@ -1,14 +1,15 @@
 const db = require('./index')
-const userProfile = {}
+const modelProfile = {}
 
-userProfile.list = (user, cb) => {
+modelProfile.menu = (user, cb) => {
   let sql = `
-            SELECT k_modulo AS modId, d_modulo AS modulo, d_rol AS rol, d_link AS link  from gnv_v_menu 
+            SELECT K_MODULO AS modId, D_MODULO AS modulo, D_ROL AS rol, D_PATH_API AS path, N_MAESTRO AS master, D_TIPO_MAESTRO as family  from gnv_v_menu 
             `;
   if(user!=='') {
     sql += ` WHERE k_usuario=${db.escape(user)} `
   }
-            
+console.log(sql);
+     
   db.query(sql, (err, result) => {
     if(err){
       //throw err
@@ -20,4 +21,4 @@ userProfile.list = (user, cb) => {
 }
 
 //exports.default = userProfile
-module.exports = userProfile
+module.exports = modelProfile

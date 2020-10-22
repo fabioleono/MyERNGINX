@@ -83,12 +83,36 @@ app.use(cors())
 // ROUTES
 const version = process.env.API_VERSION
 const api = `${process.env.API}${version}`
-//app.use(require('../routes/index')) // accedo a las rutas del archivo index.js
+//app.use(require('../routes/index')) // PRUEBAS accedo a las rutas del archivo index.js
 app.use(api, require(`../routes${version}/authentication`)); //rutas de Autenticacion y Login 
 app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticacion y login Usuario Info Publica
-app.use(api, require(`../routes${version}/certignv`));// Ruta del menu certignv
-app.use(api, require(`../routes${version}/wildcards/App`));// Acedo a la ruta para subdominio app.enabletech.tech
+
+const accessAdmin = `${api}/administrador`
+app.use(accessAdmin, require(`../routes${version}/administrador`));// rutas del superusuario
+
+//const accessCert = /\/api\/gnvco\/v1\/(administrador|certificador)/; 
+// const accessCert = new RegExp('/(administrador|certificador)');
+// const accessCert = /\/(administrador|certificador)/;
+
+const accessCert = new RegExp(""+ api + "/(administrador|certificador)");// las rutas de la familia certificador pueden tambien ser accedidas por el superusuario, utilizando el mismo controlador y filtradas en las query del modelo
+app.use(accessCert, require(`../routes${version}/certificador`));// Rutas de la familia certificador y superusuario
+
+const accessGob = new RegExp(""+ api + "/(administrador|gobierno)");// las rutas de la familia Gobierno pueden tambien ser accedidas por el superusuario, utilizando el mismo controlador y filtradas en las query del modelo
+app.use(accessGob, require(`../routes${version}/gobierno`)) // Rutas de la familia Gobierno y superusuario
+
+const accessIndex = new RegExp(""+ api + "/(administrador|certificador|gobierno)");
+app.use(accessIndex, require(`../routes/v1/index`)); // rutas al path inicio de las familias del Proyecto 
+
+const accessInfoPublic = `${api}/infopublica`
+app.use(accessInfoPublic, require(`../routes${version}/infoPublica`)) // Rutas del usuario de Info Publica
+
+app.use(api, require(`../routes${version}/wildcards/App`));// Accedo a la ruta para subdominio app.enabletech.tech
 app.use(api, require(`../routes${version}/mail`));// La ruta para generar correos automaticos (Pruebas)
+
+// app.get('/*', (req, res) => {
+//   res.status(404).send("error 404 ñeee");
+// })
+
 
 // STATIC FILES
 // en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con npm run build 

@@ -4,9 +4,9 @@ const db = require("./index");
 const userModelPublic = {};
 
 userModelPublic.list = (userData, cb) => {
-  let sql = "SELECT k_registro as user, d_nombre_usuario as name, d_direccion as address, n_telefono as tel, n_estado as state, f_registro as regdate, d_correo as mail, f_password as passdate, gnv_t_ciudad.d_ciudad as city FROM gnv_t_registro LEFT JOIN gnv_t_ciudad ON gnv_t_ciudad.k_ciudad=gnv_t_registro.r_ciudad ";
-  if (userData !== "") sql += ` WHERE k_registro=${db.escape(userData)} `;
-  // console.log(sql);
+  const sql = `SELECT k_registro as user, d_nombre_usuario as name, d_direccion as address, n_telefono as tel, n_estado as state, f_registro as regdate, d_correo as mail, f_password as passdate, gnv_t_ciudad.d_ciudad as city FROM gnv_t_registro LEFT JOIN gnv_t_ciudad ON gnv_t_ciudad.k_ciudad=gnv_t_registro.r_ciudad WHERE k_registro=${db.escape(userData)} `;
+ 
+  console.log(sql);
 
   db.query(sql, (err, result) => {
     if (err) {

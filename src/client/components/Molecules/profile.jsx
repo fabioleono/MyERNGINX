@@ -6,6 +6,8 @@ const subMenu = createRef()
 const log_Out = () => {
   if(localStorage.getItem("token")){
     localStorage.removeItem("token");
+    localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
+    
     window.location = "/login";
   }else{
     localStorage.removeItem("tokenPublic");
@@ -62,17 +64,24 @@ const Profile = ({ user, consumer, profile }) => {
             <div id="navigator">
               <ul className="top-level">
                 {profile &&
-                  menu.map((e) => {
+                  menu.map((menu) => {
                     return (
-                      <li key={e.modulo}>
-                        {e.modulo}
-                        <ul className="sub-level" key={e.modId}>
-                          {profile.map((se) => {
-                            if (e.modulo === se.modulo) {
+                      <li key={menu.modulo}>
+                        {menu.modulo}
+                        <ul className="sub-level" key={menu.modId}>
+                          {profile.map((submenu) => {
+                            if (menu.modulo === submenu.modulo) {
                               return (
-                                <li key={se.link}>
-                                  <NavLink to={"/" + se.modulo + "/" + se.rol.replace(/ /g, "").toLowerCase()}>
-                                    {se.rol}
+                                <li key={submenu.rol}>
+                                  <NavLink
+                                    to={{
+                                      pathname: `/${submenu.family.substring(6)}${submenu.path}`,
+                                      user: user,
+                                      master: submenu.master,
+                                      family: submenu.family.substring(6),
+                                    }}
+                                  >
+                                    {submenu.rol}
                                   </NavLink>
                                 </li>
                               );
@@ -95,10 +104,10 @@ const Profile = ({ user, consumer, profile }) => {
                   <NavLink to="/descarga">Descargas</NavLink>
                 </li>
                 <li>
-                  <NavLink to="/descarga">Historial</NavLink>
+                  <NavLink to="/historial">Historial</NavLink>
                 </li>
                 <li>
-                  <NavLink to="/descarga">Terminos y Condiciones</NavLink>
+                  <NavLink to="/terminos">Terminos y Condiciones</NavLink>
                 </li>
                 <li>
                   <span onClick={() => log_Out()}>Cerrar Sesion</span>

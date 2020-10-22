@@ -1,5 +1,7 @@
 import React from "react";
 import axios from "axios";
+//import store from "../../Redux/store";
+//import { getProfile } from "../../Redux/actionCreators";
 
 const auth = e => {
   //console.log(e.target);
@@ -36,11 +38,28 @@ console.log('URL', url);
   axios
     .post(url, dataForm)
     .then((res) => {
-      console.log(res);
+      console.log('RESPUESTA', res);
       if (res.data.token) {
         localStorage.removeItem('tokenPublic')
         localStorage.setItem("token", res.data.token);
-        window.location = `/certignv/${res.data.user}`;
+        switch (res.data.type) {
+          case "superusuario":
+            window.location = `/administrador/${res.data.user}`;
+            break;
+          case "gnv_t_certificador":
+            window.location = `/certificador/${res.data.user}`;
+            // window.location = `/certificador/?user=${res.data.user}`;
+            //store.dispatch(getProfile(res.data.user))
+            // window.location = "/certificador";
+            break;
+          case "gnv_t_gobierno":
+            window.location = `/gobierno/${res.data.user}`;
+            break;
+          default:
+            break;
+        }
+        //store.dispatch(getProfile(res.data.user));
+        //window.location = `/certignv/${res.data.user}`;
       } else {
         document.getElementById("msgError").innerHTML = res.data.message;
       }

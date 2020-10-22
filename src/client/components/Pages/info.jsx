@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react' 
 import { connect } from 'react-redux'
 import { getPublic } from '../../Redux/actionCreators'
-import store from "../../Redux/store";
+import { store } from "../../Redux/store";
 
 const Info = ({ match, info, consumer }) => {
 

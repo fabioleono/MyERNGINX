@@ -1,12 +1,7 @@
-import { GET_ALL_PROFILES, GET_ALL_PUBLICS, GET_ALL_USERS, GET_PROFILE, GET_PUBLIC, GET_USER } from "./actions";
+import { GET_ALL_PUBLICS, GET_ALL_USERS, GET_ALL_WORKSHOPS, GET_PROFILE, GET_PUBLIC, GET_USER } from "./actions";
 
 export const profileReducer = (state={}, action) => {
-  if(action.type===GET_ALL_PROFILES){
-    return{
-      ...state,
-      profiles: action.profiles
-    }
-  }
+  
   if(action.type===GET_PROFILE){
     return {
       ...state,
@@ -35,22 +30,29 @@ export const publicReducer = (state = {}, action) => {
 
   return state;
 };
-export const userReducer = (state= {}, action) => {
-  if(action.type===GET_ALL_USERS){
-    return {
-      ...state,
-      users: action.users
-    }
-  }
-  if(action.type===GET_USER){
-    return {
-      ...state,
-      user: action.user
-    }
-  }
-  
-  return state
-}
+
 export const workshopReducer = (state = {}, action) => {
+  if(action.type===GET_ALL_WORKSHOPS){
+    return  action.workshops
+    
+  }
+  return state;
+};
+
+// TEST
+export const userReducer = (state = {}, action) => {
+  if (action.type === GET_ALL_USERS) {
+    return {
+      ...state,
+      users: action.users,
+    };
+  }
+  if (action.type === GET_USER) {
+    return {
+      ...state,
+      user: action.user,
+    };
+  }
+
   return state;
 };

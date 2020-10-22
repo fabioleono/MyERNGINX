@@ -6,7 +6,7 @@ const PrivateInfoMenu = ({ consumer }) => {
   return (
     <>
       <li>
-        <NavLink to={`/info/${consumer}`}>Info Publica</NavLink>
+        <NavLink to={`/infopublica/${consumer}`}>Info Publica</NavLink>
       </li>
     
     </>

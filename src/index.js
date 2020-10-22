@@ -2,25 +2,30 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import App from "./client/components/App";
-import { getPublic } from "./client/Redux/actionCreators";
+// import { getWorkshops } from "./client/Redux/actionCreators";
 //import {  getProfile, getAllProfiles, getAllUsers } from "./client/Redux/actionCreators";
 
-import store  from "./client/Redux/store";
+import { store, persistor } from "./client/Redux/store";
+import { PersistGate } from "redux-persist/integration/react";
 import "./styles/styles.scss";
 import "./styles/app.css";
 
-console.log('env', process.env);
+//console.log('env', process.env);
 
 //store.dispatch(getProfile("admin"))
 // store.dispatch(getAllUsers())
 // store.dispatch(getAllProfiles())
-store.dispatch(getPublic("79744894"))
+//store.dispatch(getPublic("79744894"))
+// store.dispatch(getWorkshops("8300550498", "certificador"));
+
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <PersistGate loading={null} persistor={persistor}>
+      <App />
+    </PersistGate>
   </Provider>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change

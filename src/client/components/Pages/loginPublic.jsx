@@ -14,7 +14,7 @@ const authPublic = e => {
     if(res.data.token){
       localStorage.removeItem("token");
       localStorage.setItem('tokenPublic', res.data.token)
-      window.location.href = `/info/${res.data.consumer}`;
+      window.location.href = `/infopublica/${res.data.consumer}`;
       
     }else{
       document.getElementById('msgError').innerHTML=res.data.message
