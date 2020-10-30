@@ -3,6 +3,73 @@ const db = require("./index");
 
 const userModel = {};
 
+
+userModel.login = (userData, cb) => {
+  const sql = `
+            SET @user = ?;
+            SET @password = ?;
+            SET @address = ?;
+            SET @id = ?;
+            CALL gnv_p_user_login(@user, @password, @address, @id, @login, @name, @lastDate, @ip, @message, @master, @type);
+            SELECT @login AS log, @name AS name, @lastDate AS lastDate, @ip AS ip, @message AS message, @master AS master, @type AS type; 
+            `;
+  // console.log('query ', sql);
+  const data = {};
+  data.user = userData.k_usuario;
+  db.query(
+    sql,
+    [
+      userData.k_usuario,
+      userData.d_password,
+      userData.d_ip,
+      userData.d_session,
+    ],
+    (err, result, fields) => {
+      // console.log('result', result);
+      if (err) {
+        cb(err, { status: "ERROR QUERY ", data: err });
+      } else {
+        result
+          .flat() // La query trae un arreglo anidado con el resultado de la validacion del procedimiento mysql, con el metodo flat se crea un nuevo arreglo sin anidar
+          .forEach((e) => {
+            //recorro el arreglo y completo la data de salida
+            data.log = e.log;
+            data.name = e.name;
+            data.lastDate = e.lastDate;
+            data.ip = e.ip;
+            data.message = e.message;
+            data.master = e.master;
+            data.type = e.type;
+          });
+        cb(null, data);
+      }
+    }
+  );
+};
+
+
+userModel.logout = (userOut, cb) => {
+  const sql = `
+            SET @user = ?;
+            CALL gnv_p_salir(@user);
+            `;
+   console.log('query ', sql);
+  
+  db.query(sql,[userOut], (err, result, fields) => {
+      // console.log('result', result);
+      if (err) {
+        cb(err, { status: "ERROR QUERY ", data: err });
+      } else {
+        
+        cb(null, result);
+      }
+    }
+  );
+};
+
+
+
+
 userModel.list = (userData, cb) => {
   let sql = "SELECT k_usuario as user, d_nombre as name, n_cedula as id, d_direccion as address, d_telefono as tel, n_estado as state, f_registro as regdate, d_correo as mail, f_password as passdate, gnv_t_ciudad.d_ciudad as city FROM gnv_t_usuario LEFT JOIN gnv_t_ciudad ON gnv_t_ciudad.k_ciudad=gnv_t_usuario.r_ciudad ";
   if (userData !== "") sql += ` WHERE k_usuario=${db.escape(userData)} `;
@@ -25,41 +92,6 @@ userModel.list = (userData, cb) => {
   //  console.log('query', query);
   //  console.log(query.result);
   //----
-};
-
-
-userModel.login = (userData, cb) => {
-  
-  const sql = `
-            SET @user = ?;
-            SET @password = ?;
-            SET @address = ?;
-            SET @id = ?;
-            CALL gnv_p_user_login(@user, @password, @address, @id, @login, @name, @lastDate, @ip, @message, @master, @type);
-            SELECT @login AS log, @name AS name, @lastDate AS lastDate, @ip AS ip, @message AS message, @master AS master, @type AS type; 
-            `;
- // console.log('query ', sql);
-  const data = {};
-  data.user = userData.k_usuario
-  db.query(sql, [userData.k_usuario, userData.d_password, userData.d_ip, userData.d_session], (err, result, fields) => {
-   // console.log('result', result);
-    if(err){
-      cb(err, { status: "ERROR QUERY ", data: err })
-    }else {
-      result
-        .flat() // La query trae un arreglo anidado con el resultado de la validacion del procedimiento mysql, con el metodo flat se crea un nuevo arreglo sin anidar
-        .forEach((e) => { //recorro el arreglo y completo la data de salida
-          data.log = e.log;
-          data.name = e.name;
-          data.lastDate = e.lastDate;
-          data.ip = e.ip;
-          data.message = e.message;
-          data.master = e.master;
-          data.type = e.type;
-        });
-      cb(null, data);
-    }
-  })
 };
 
 

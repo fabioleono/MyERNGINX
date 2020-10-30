@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import App from "./client/components/App";
 // import { getWorkshops } from "./client/Redux/actionCreators";
-//import {  getProfile, getAllProfiles, getAllUsers } from "./client/Redux/actionCreators";
+//import {  getUser } from "./client/Redux/actionCreators";
 
 import { store, persistor } from "./client/Redux/store";
 import { PersistGate } from "redux-persist/integration/react";
@@ -17,7 +17,7 @@ import "./styles/app.css";
 // store.dispatch(getAllProfiles())
 //store.dispatch(getPublic("79744894"))
 // store.dispatch(getWorkshops("8300550498", "certificador"));
-
+//store.dispatch(getUser('admin', 'administrador'));
 
 ReactDOM.render(
   <Provider store={store}>

@@ -2,15 +2,25 @@
 const ctrlTechnical = {};
 
 ctrlTechnical.show = (req, res, next) => {
-  console.log("Orig ", req.originalUrl," url ",req.url," params ",req.params  );
+  console.log(
+    "Orig ",
+    req.originalUrl,
+    " url ",
+    req.url,
+    " params ",
+    req.params,
+    " token ",
+    req.decoded
+  );
   res.send("Obtener todos los Tecnicos de Tecnico de Taller");
+
 
   // userProfile.menu(user, (err, data) => {
   //   if (!err) {
   //     res.status(200).json(data);
   //     //console.log('tipo de dato', typeof(data))
   //     //console.log(data);
-      
+
   //   } else {
   //     console.log("Mysql Error: ", err);
 
@@ -21,7 +31,7 @@ ctrlTechnical.show = (req, res, next) => {
   //     });
   //   }
   // });
-};
+};;
 
 ctrlTechnical.update = (req, res) => {
   console.log("Orig ", req.originalUrl," url ",req.url," params ",req.params  );

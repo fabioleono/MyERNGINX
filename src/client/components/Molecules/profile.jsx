@@ -1,33 +1,31 @@
 import React, { createRef } from 'react' 
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+import { logOutSession } from './logOut';
+
 const subMenu = createRef()
 
 const log_Out = () => {
-  if(localStorage.getItem("token")){
-    localStorage.removeItem("token");
-    localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-    
-    window.location = "/login";
-  }else{
+  
     localStorage.removeItem("tokenPublic");
-    window.location = "/loginPublic";
-  }
+    window.location.href = "/loginPublic";
+  
     
   }
   const show_profile = () => {
     // Si eliminaron algun token o hubo un error!!
     if((!localStorage.getItem("token"))&&(!localStorage.getItem("tokenPublic"))){
-      window.location = "/";
+      window.location.href = "/";
     }
     subMenu.current.classList.toggle('profile_hidden')
   }  
 
   //onMouseOut={() => show_profile()}
 
-const Profile = ({ user, consumer, profile }) => {
+const Profile = ({ user, family, consumer, profile }) => {
   let menu;
-
+ 
+    
   if (profile) {
     menu = profile.filter(function (e) {
       return profile[e.modulo] ? false : (profile[e.modulo] = true);
@@ -49,21 +47,11 @@ const Profile = ({ user, consumer, profile }) => {
       <div ref={subMenu} className="profile_hidden">
         <div className="profile_div">
           <p>{localStorage.getItem("token") ? user : consumer}</p>
-          {/* <p>
-            { localStorage.getItem("token") ?
-            <NavLink to="/ConfigUser">
-              <span>Configuración</span>
-            </NavLink>
-            :
-            <NavLink to="/ConfigPublic">
-              <span>Configuración</span>
-            </NavLink>
-          }
-          </p> */}
+          
           {localStorage.getItem("token") ? (
             <div id="navigator">
               <ul className="top-level">
-                {profile &&
+                {profile && // si existe el usuario
                   menu.map((menu) => {
                     return (
                       <li key={menu.modulo}>
@@ -75,10 +63,10 @@ const Profile = ({ user, consumer, profile }) => {
                                 <li key={submenu.rol}>
                                   <NavLink
                                     to={{
-                                      pathname: `/${submenu.family.substring(6)}${submenu.path}`,
+                                      pathname: `/${family}${submenu.path}`,
                                       user: user,
                                       master: submenu.master,
-                                      family: submenu.family.substring(6),
+                                      family: family,
                                     }}
                                   >
                                     {submenu.rol}
@@ -90,10 +78,12 @@ const Profile = ({ user, consumer, profile }) => {
                           })}
                         </ul>
                       </li>
+                      
                     );
-                  })}
-                <li>
-                  <span onClick={() => log_Out()}>Cerrar Sesion</span>
+                  })
+                  }
+                  <li>
+                  <span onClick={() => logOutSession(user)}>Cerrar Sesion</span>
                 </li>
               </ul>
             </div>
@@ -133,9 +123,10 @@ const Profile = ({ user, consumer, profile }) => {
 
 }
 const mapStateToProps = (state) => ({
-  user: state.profileReducer.user,
+  user: state.userReducer.user,
+  family: state.userReducer.family,
   profile: state.profileReducer.profile,
-  consumer: state.publicReducer.consumer
+  // consumer: state.publicReducer.consumer
 });
 
 const mapDispatchToProps = () => ({});

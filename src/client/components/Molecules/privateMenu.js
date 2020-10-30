@@ -2,22 +2,27 @@ import React from 'react'
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
-const PrivateMenu = ( { user }) => {
-//console.log('props', props);
-console.log('usuario menu', user);
+const PrivateMenu = ( { family } ) => {
+// console.log('props private menu', props);
+// console.log('location ', location);
+// console.log('match ', match);
+
+// console.log('PRIVATE MENU  ', family);
+
 
   return (
     <>
       <li>
-        <NavLink to={`/certificador/${user}`}>Certificadores</NavLink>
+        <NavLink to={`/${family}`}>Certificadores</NavLink>
       </li>
     </>
   );
 }
 
 const mapStateToProps = (state) => ({
-  user: state.profileReducer.user
-})
+  user: state.userReducer.user,
+  family: state.userReducer.family,
+});
 
 const mapDispatchToProps = () => ({})
 

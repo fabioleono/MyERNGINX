@@ -3,11 +3,17 @@ const routesReact = [
   "/contacto",
   "/login",
   "/loginpublic",
+  "/certificador/talleres/:master",
+  "/certificador/talleres",
   "/certificador",
-  "/certificador/:user",
-  "/infopublic",
-  "/infopublic/:consumer",
+  "/administrador/talleres/:master",
+  "/administrador/talleres",
+  "/administrador",
+  "/infopublica",
+  "/infopublica/:consumer",
   "/users",
+  "/error",
+  "*",
 ];
 module.exports = routesReact
 

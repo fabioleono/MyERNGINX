@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react' 
 import { connect } from 'react-redux'
-import { getPublic } from '../../Redux/actionCreators'
-import { store } from "../../Redux/store";
+// import { getPublic } from '../../Redux/actionCreators'
+// import { store } from "../../Redux/store";
 
 const Info = ({ match, info, consumer }) => {
 
   useEffect(() => {
-  const consumerProfile=match.params.consumer
-  store.dispatch(getPublic(consumerProfile))
+  //const consumerProfile=match.params.consumer
+  // store.dispatch(getPublic(consumerProfile))
 },[match]) 
   return (
     <div>

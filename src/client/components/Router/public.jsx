@@ -1,22 +1,16 @@
 import React from 'react' 
-import { connect } from 'react-redux'
-import { Redirect, Route } from 'react-router-dom'
-const Public = ({ component: Component , user, ...others}) => {
+//import { Redirect, Route } from 'react-router-dom'
+import { Route } from "react-router-dom";
+const Public = ({ component: Component , ...others}) => {
   
-  // console.log('componente ' , Component);
-  // console.log("otros ", others);
-
-const path=`/certificador/${user}`
-console.log('path ', path);
+// console.log('componente file public.jsx' , Component);
+//    console.log("otros file public.jsx", others);
  
-  if(localStorage.getItem("token")) return <Redirect to={path} />
+  //if(localStorage.getItem("token")) return <Redirect to="/" />
   return (
     <Route {...others} component={Component}/>
   )
 }
-const mapStateToProps = (state) => ({
-  user: state.profileReducer.user
-}); 
-const mapDispatchToProps = state => ({})
+
   
-export default connect(mapStateToProps,mapDispatchToProps)(Public)
+export default Public

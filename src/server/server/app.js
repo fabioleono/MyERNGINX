@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const requestIp = require("request-ip");
 const cors = require('cors')
 //const helmet = require('helmet')
+const session = require('express-session')
 
 const app = express()
 
@@ -67,7 +68,17 @@ app.use(
 app.use(express.json()) // recibo las solicitudes json de los clientes
 app.use(express.urlencoded({extended:false})) // recibir datos de formularios y lo conviert en objetos de javascript
 app.use(requestIp.mw()); // encontrar Ip de cliente
+
+// SESSION, espacion en memoria que se puede compartir entre multiples paginas
+app.use(session({
+  secret: process.env.KEY_SESSION,// cada sesion guardada de manera unica
+  resave: false,//evitar que se vuelva a guardar 
+  saveUninitialized: false // no permite que sean inicializadas
+}))// se configura los parametros para cuanto se deben reiniciar o alguna ip que no debe ser guardada
+
+
 app.use(cors())
+
 
 // app.use((req, res, next) => {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -80,10 +91,11 @@ app.use(cors())
 //   next();
 // });
 
+
 // ROUTES
 const version = process.env.API_VERSION
 const api = `${process.env.API}${version}`
-//app.use(require('../routes/index')) // PRUEBAS accedo a las rutas del archivo index.js
+
 app.use(api, require(`../routes${version}/authentication`)); //rutas de Autenticacion y Login 
 app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticacion y login Usuario Info Publica
 
@@ -100,19 +112,11 @@ app.use(accessCert, require(`../routes${version}/certificador`));// Rutas de la 
 const accessGob = new RegExp(""+ api + "/(administrador|gobierno)");// las rutas de la familia Gobierno pueden tambien ser accedidas por el superusuario, utilizando el mismo controlador y filtradas en las query del modelo
 app.use(accessGob, require(`../routes${version}/gobierno`)) // Rutas de la familia Gobierno y superusuario
 
-const accessIndex = new RegExp(""+ api + "/(administrador|certificador|gobierno)");
-app.use(accessIndex, require(`../routes/v1/index`)); // rutas al path inicio de las familias del Proyecto 
-
 const accessInfoPublic = `${api}/infopublica`
 app.use(accessInfoPublic, require(`../routes${version}/infoPublica`)) // Rutas del usuario de Info Publica
 
 app.use(api, require(`../routes${version}/wildcards/App`));// Accedo a la ruta para subdominio app.enabletech.tech
 app.use(api, require(`../routes${version}/mail`));// La ruta para generar correos automaticos (Pruebas)
-
-// app.get('/*', (req, res) => {
-//   res.status(404).send("error 404 ñeee");
-// })
-
 
 // STATIC FILES
 // en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con npm run build 
@@ -122,11 +126,13 @@ app.use(express.static(path.join(__dirname, "../../../", "build")));
 require("../routes/v1/react").map((e) => {
   return app.use(e, express.static(path.join(__dirname, "../../../", "build")));
 });
+// Ej:
 // app.use("/proyecto", express.static(path.join(__dirname, "../../../", "build")));
 // app.use("/certignv", express.static(path.join(__dirname, "../../../", "build")));
 // app.use("/certignv/:user", express.static(path.join(__dirname, "../../../", "build")));
-// app.get('*',(req,res)=>{res.redirect('/')})
-// router.get("*", (req, res) => {
+// Dentro del arreglo de react va una ruta al resto *. Con ella renderiza el componente de REACT error 404 ruta no encontrada
+
+// app.use("*", (req, res) => {
 //   res.status(404).send("error 404");
 // });
 

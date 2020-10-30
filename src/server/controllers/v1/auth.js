@@ -1,77 +1,110 @@
-const userModel = require('../../models/v1/auth')
-const jwt = require('jsonwebtoken');
-const passport = require('passport')
-const ctrlAuth = {}
-
-ctrlAuth.list = (req, res, next) => {
-  //console.log('solicitud ', req);
-  //console.log('respuesta ', res);
-  
-  
-  let userData = ''
-  if (req.params.user)  userData = req.params.user
-  
-  userModel.list(userData, (err, data) => {
-    
-    if (!err) {
-      //res.status(200).json(data);
-      res.status(200).send(data)
-      // console.log('tipo de dato', typeof(data))
-    } else {
-      console.log("Mysql Error: ", err);
-
-      res.status(500).json({
-        success: false,
-        message: "Error ",
-        data: err,
-      });
-    }  
-    
-  })
-  
-}
-
+const userModel = require("../../models/v1/auth");
+const jwt = require("jsonwebtoken");
+const passport = require("passport");
+const ctrlAuth = {};
 
 ctrlAuth.login = (req, res, next) => {
   //console.log(req.body);
+  console.log("IN FORM VALIDATION ");
+  
+  // console.log("session 1", req.session);
+  // console.log("session id 1", req.sessionID);
+
+  //req.session.destroy()
+  //res.clearCookie("connect.sid");
+  //   console.log("session 2", req.session);
+  //  console.log("session id 2", req.sessionID);
+
   const { user, pass } = req.body;
+
+  if (!user || !pass)
+    return res.status(400).json({
+      sucess: false,
+      status: "Error, Data Incorrect ",
+    });
+
   const ip = req.clientIp;
   const userData = {
     k_usuario: user,
     d_password: pass,
-    d_ip: ip
+    d_ip: ip,
+    d_session: req.sessionID,
   };
-  //res.status(201).send({"response": "ok"})
+
   console.log("req.body ", userData);
 
   userModel.login(userData, (err, data) => {
-    if (!err) {
-        if (data.log === 0 || data.log === 1){
-        // creo el json webtoken
-        const token = jwt.sign({ id: user }, process.env.KEY_SECRET, {
-          expiresIn: 60 * 24 * 24, //expiracion del token en sg
-        });
-        // asocio el token al header
-        req.headers["x-access-token"] = token;
-        // console.log('headers3 ', req.headers);
-        data.token=token
-      }
-     res.status(200).json(data);
-
-    } else {
-      res.status(500).json({
+    if (err) {
+      req.session.destroy();
+      res.clearCookie("connect.sid");
+      return res.status(500).json({
         sucess: false,
-        message: "Error ",
-        data
+        status: "Error Server DB ",
       });
     }
+    if (data.log === 0 || data.log === 1) {
+      req.session.ValidatorSessionAuthorization = "ValidatorSessionAuthorization"; //creo la session
+      const type = data.type;
+      const family = type.slice(6);
+      // creo el json webtoken
+      const token = jwt.sign({ user, family }, process.env.KEY_SECRET, {
+        //expiresIn: 60 * 24 * 24, //expiracion del token en sg
+        expiresIn: 60 * 60, //expiracion del token en sg
+      });
+      data.token = token;
+    }
+    res.status(200).json(data);
   });
 };
 
+ctrlAuth.logout = (req, res) => {
+  console.log("SALIR SESSION ", req.params);
 
+  const userOut = req.params.user;
+  if (!userOut)
+    return res.status(400).json({
+      sucess: false,
+      status: "Error, Data Incorrect ",
+    });
 
+  userModel.logout(userOut, (err, data) => {
+    if (err)
+      return res.status(500).json({
+        sucess: false,
+        status: "Error Server DB ",
+      });
+    req.session.destroy();
+    res.clearCookie("connect.sid");
+    res.status(200).json(data);
+  });
+};
 
+// ctrlAuth.list = (req, res, next) => {
+//   //console.log('solicitud ', req);
+//   //console.log('respuesta ', res);
 
+//   let userData = ''
+//   if (req.params.user)  userData = req.params.user
+
+//   userModel.list(userData, (err, data) => {
+
+//     if (!err) {
+//       //res.status(200).json(data);
+//       res.status(200).send(data)
+//       // console.log('tipo de dato', typeof(data))
+//     } else {
+//       console.log("Mysql Error: ", err);
+
+//       res.status(500).json({
+//         success: false,
+//         message: "Error ",
+//         data: err,
+//       });
+//     }
+
+//   })
+
+// }
 
 ctrlAuth.update = (req, res, next) => {
   //  const token = req.headers['x-access-token']
@@ -92,10 +125,10 @@ ctrlAuth.update = (req, res, next) => {
     d_mail: "paolitagomez2@hotmail.com",
     r_ciudad: 150001,
   };
-  let model
+  let model;
   //console.log('Usuario ', userData);
   // si al servidor llega una solicitud GET, es por que se estan pidiendo los datos del usuario, si es POST es por que se esta pidiendo actualizar los datos del usuario
-  let userData
+  let userData;
   if (req.method === "GET") {
     model = userModel.list;
     userData = req.params.id;
@@ -106,7 +139,7 @@ ctrlAuth.update = (req, res, next) => {
 
   model(userData, (err, data) => {
     if (!err) {
-      console.log(data)
+      console.log(data);
       console.log("tipo de dato", typeof data);
       res.status(200).json(data);
     } else {
@@ -121,11 +154,6 @@ ctrlAuth.update = (req, res, next) => {
   });
 };
 
-
-
-
-
-
 // Con el modelo PASSport
 ctrlAuth.register = passport.authenticate("login-local", {
   successRedirect: "/Profile",
@@ -134,14 +162,12 @@ ctrlAuth.register = passport.authenticate("login-local", {
 });
 
 ctrlAuth.prueba = (req, res, next) => {
-  res.status(200).json({message: "Ruta a Prueba"});
- // res.send("error en passport");
+  res.status(200).json({ message: "Ruta a Prueba" });
+  // res.send("error en passport");
   console.log("ruta a Prueba ", req.url);
   console.log("headers Prueba ", req.headers);
-  console.log('locales ', res.locals);
-  
+  console.log("locales ", res.locals);
 };
-
 
 /* // sin modelo Passport
 // ctrlAuth.register = (req, res, next) => {
@@ -192,14 +218,12 @@ ctrlAuth.prueba = (req, res, next) => {
 // };
 */
 
-
-
 ctrlAuth.delete = (req, res, next) => {
   const userData = {
-    k_usuario: req.params.id
-  }
+    k_usuario: req.params.id,
+  };
   //console.log('user ', userData);
-  
+
   userModel.delete(userData, (err, data) => {
     if (!err) {
       res.status(200).json({
@@ -215,14 +239,13 @@ ctrlAuth.delete = (req, res, next) => {
         message: "Error ",
         data: err,
       });
-    } 
-  })
+    }
+  });
   // res.json({
   //   path: req.path,
   //   route: "authentication",
   //   task: "Elimina el usuario",
   // });
-}
+};
 
-
-module.exports = ctrlAuth
+module.exports = ctrlAuth;

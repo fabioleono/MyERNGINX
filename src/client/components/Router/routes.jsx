@@ -1,5 +1,5 @@
 import React from 'react' 
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import Home from '../Pages/home'
 import Login from '../Pages/login'
 import LoginPublic from '../Pages/loginPublic'
@@ -15,6 +15,8 @@ import Protected from "./protected";
 import ProtectedInfo from './protectedInfo'
 import Info from '../Pages/info'
 import Technicals from '../Pages/technicals'
+import Error from '../Pages/error' 
+import Administrador from '../Pages/administrador'
 
 
 
@@ -29,13 +31,27 @@ const Routes = () => {
         <Route path="/users" exact component={Users} />
         <PublicInfo path="/loginpublic" exact component={LoginPublic} />
         <Public path="/login" exact component={Login} />
+        
         <ProtectedInfo path="/infopublica/:consumer" component={Info} />
+
+          {/* Rutas Familia Certificador */}
+
         <Protected path="/certificador/talleres/tecnicos" component={Technicals} />
         <Protected path="/certificador/talleres" component={Workshops} />
-        <Protected path="/certificador/:user" component={Certificador} />
-        <Protected path="/certificador">
-          <Redirect to="/login" />
-        </Protected>
+        <Protected path="/certificador" component={Certificador} />
+        
+        {/* <Protected path="/certificador"> */}
+          {/* Para casos donde el usuario recargue al browser en la ruta base */}
+          {/* <Redirect to="/login" /> */}
+        {/* </Protected> */}
+
+        {/* Rutas Familia Administrador*/}
+
+        <Protected path="/administrador/talleres/tecnicos" component={Technicals} />
+        <Protected path="/administrador/talleres" component={Workshops} />
+        <Protected path="/administrador" component={Administrador} />
+        
+        <Route path="/error" exact component={Error} />
         
 
         <Route

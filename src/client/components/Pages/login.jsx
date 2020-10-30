@@ -1,77 +1,57 @@
-import React from "react";
+import React , { useState } from "react";
 import axios from "axios";
-//import store from "../../Redux/store";
-//import { getProfile } from "../../Redux/actionCreators";
+import { store } from "../../Redux/store";
+import { getUser } from "../../Redux/actionCreators";
+import { logOutSession } from "../Molecules/logOut";
 
-const auth = e => {
+const Login = () => {
+
+const auth = (e) => {
   //console.log(e.target);
   e.preventDefault();
   //console.log("entorno ", process.env.REACT_APP_API_URL);
   const url = `${process.env.REACT_APP_API_URL}/login`;
-console.log('URL', url);
+  console.log("URL", url);
 
   const dataForm = {
     user: e.target.user.value,
     pass: e.target.pass.value,
   };
-  // console.log('dta', dataForm);
-  // console.log("dta stringy", JSON.stringify(dataForm));
-
-  // const myInit = {
-  //   method: "POST",
-  //   body: JSON.stringify(dataForm),
-  // };
-  // console.log(myInit);
-
-  //   fetch(url, myInit)
-  //     .then((res) => res.json())
-  //     .then((json) => {
-  //       console.log(json);
-  //       if(json.token){
-  //         localStorage.setItem("token", json.token);
-  //         window.location="/Users"
-  //       }else{
-  //         document.getElementById('msgError').innerHTML=json.message
-  //       }
-  //     }).catch((e) => console.log(e));
-
+  setStateUser(e.target.user.value)
   axios
-    .post(url, dataForm)
+    .put(url, dataForm)
     .then((res) => {
-      console.log('RESPUESTA', res);
-      if (res.data.token) {
-        localStorage.removeItem('tokenPublic')
-        localStorage.setItem("token", res.data.token);
-        switch (res.data.type) {
-          case "superusuario":
-            window.location = `/administrador/${res.data.user}`;
-            break;
-          case "gnv_t_certificador":
-            window.location = `/certificador/${res.data.user}`;
-            // window.location = `/certificador/?user=${res.data.user}`;
-            //store.dispatch(getProfile(res.data.user))
-            // window.location = "/certificador";
-            break;
-          case "gnv_t_gobierno":
-            window.location = `/gobierno/${res.data.user}`;
-            break;
-          default:
-            break;
+      console.log("RESPONSE SERVER", res);
+      const { token, user, type, message, log } = res.data;
+      if (!token) {
+        if (log === -3) {
+          return setStateLog(log);
+        } else {
+          return window.document.getElementById('msgError').innerHTML=message
         }
-        //store.dispatch(getProfile(res.data.user));
-        //window.location = `/certignv/${res.data.user}`;
-      } else {
-        document.getElementById("msgError").innerHTML = res.data.message;
       }
-      console.log(res.data);
+
+      localStorage.removeItem("tokenPublic"); // elimino el token del usuario de infopublica
+      localStorage.setItem("token", token);
+      const family = type.slice(6);
+      // console.log("USER FAMILY ", family);
+      store.dispatch(getUser(user, family));
+
+      window.location.href = `/${family}`;
     })
     .catch((e) => console.log(e));
-}
+};
 
-const Login = () => {
+const [stateLog, setStateLog] = useState()
+const [stateUser, setStateUser] = useState();
+//console.log('ESTADO ', stateLog);
+  
   return (
     <>
+
       <h1>Login Certificadores</h1>
+
+      {!stateLog ? 
       <form id="formulario" onSubmit={auth.bind()}>
         <label htmlFor="user">
           Usuario
@@ -80,6 +60,7 @@ const Login = () => {
             name="user"
             id="user"
             placeholder="Ingrese su usuario"
+            autoFocus
           />
         </label>
         <label htmlFor="pass">
@@ -93,11 +74,36 @@ const Login = () => {
         </label>
         <input type="submit" value="Enviar" />
       </form>
+      :
+       (
+        <div>
+          <Session user={stateUser} />
+        </div>
+      )}
       <div id="msgError"></div>
     </>
   );
 };
 export default Login;
+
+const Session = ({ user }) => {
+  
+    return (
+      <div>
+        <p>
+          Se Detecto que para este Usuario existe una Sesion abierta en otro
+          Explorador o Host, O la ultima sesion valida no se cerro de manera
+          segura. Desea Cerrar la Sesion Existente y comenzar otra sesion
+          valida?
+
+        </p>
+        <p><button onClick={() => logOutSession(user)}>SI</button><button onClick={() => {window.location.href='/login'}}>NO</button></p>
+      </div>
+    );        
+  
+
+}
+
 // import React, { Component } from "react";
 
 // import axios from "axios";
