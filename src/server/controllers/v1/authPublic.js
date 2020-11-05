@@ -1,6 +1,5 @@
 const userModel = require('../../models/v1/authPublic')
 const jwt = require('jsonwebtoken');
-const passport = require('passport')
 const ctrlAuthPublic = {}
 
 ctrlAuthPublic.list = (req, res, next) => {
@@ -73,11 +72,11 @@ ctrlAuthPublic.login = (req, res, next) => {
 
 
 // Con el modelo PASSport
-ctrlAuthPublic.register = passport.authenticate("login-local", {
-  successRedirect: "/Profile",
-  failureRedirect: "/Error",
-  passReqToCallback: true,
-});
+// ctrlAuthPublic.register = passport.authenticate("login-local", {
+//   successRedirect: "/Profile",
+//   failureRedirect: "/Error",
+//   passReqToCallback: true,
+// });
 
 
 /* // sin modelo Passport

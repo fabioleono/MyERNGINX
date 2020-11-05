@@ -6,7 +6,7 @@ router.get('/infopublica/:consumer([0-9]{4,12})', ctrlAuthPublic.list) // muestr
 // router.put("/infopublica/:consumer", ctrlAuthPublic.update); // actualiza el usuario
 // router.delete("/infopublica/:consumer", ctrlAuthPublic.delete); // elimina el usuario
 router.post("/loginpublic", ctrlAuthPublic.login); // procedimiento de Login
-router.post("/register", ctrlAuthPublic.register); // Registra el usuario
+//router.post("/register", ctrlAuthPublic.register); // Registra el usuario
 
 
 

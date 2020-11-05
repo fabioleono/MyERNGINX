@@ -1,10 +1,8 @@
 const express = require("express");
 const path = require('path')
 const morgan = require('morgan');
-//const requestIp = require("request-ip");
 const cors = require('cors')
 const helmet = require('helmet')
-//const session = require('express-session')
 
 const app = express()
 
@@ -20,6 +18,7 @@ app.set("port", process.env.PORT || 5000);
 // ver la respuesta de morgan bajo formato propio. TODAS
 // ":status :total-time :date[iso] :remote-addr :remote-user :method :url :req[header] :http-version :referrer :user-agent :res[header] :response-time "
 
+
 app.use(
   morgan(
     ":method || :url || :status || :remote-addr || :remote-user || :req[header] || :referrer || :res[header] || :response-time"
@@ -29,8 +28,8 @@ app.use(
 //SECURITY
 
 // Cuando usamos un proxy por encima de node.js, simplemente tendremos que asegurarnos de identificarlo como proxy de confianza para que la dirección del cliente sea la correcta y no la del propio proxy. 
-app.set('trust proxy', true);
-
+app.set("trust proxy", true);
+// helmet setea algunas de las cabeceras de las peticiones y carga un modelo de CSP
 app.use(helmet())
 app.use(
   helmet.contentSecurityPolicy({
@@ -55,7 +54,7 @@ app.use(
 
 app.use(express.json()) // recibo las solicitudes json de los clientes
 app.use(express.urlencoded({extended:false})) // recibir datos de formularios y lo conviert en objetos de javascript
-//app.use(requestIp.mw()); // encontrar Ip de cliente
+
 
 
 if (process.env.NODE_ENV === "development") {

@@ -6,6 +6,8 @@ ctrlWorkshop.show = (req, res, next) => {
   
   console.log("HEADER HOST ", req.hostname);
   console.log("IP ", req.ip);
+  console.log("header ", req.header("X-Forwarded-For"));
+  
   //console.log("decoded taller", req.decoded);
   console.log("HEADER Token talleres ", req.headers["x-access-token"]);
   console.log("UserId ", req.userId);

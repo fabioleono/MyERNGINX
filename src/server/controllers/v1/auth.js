@@ -1,6 +1,5 @@
 const userModel = require("../../models/v1/auth");
 const jwt = require("jsonwebtoken");
-const passport = require("passport");
 const ctrlAuth = {};
 
 ctrlAuth.login = (req, res, next) => {
@@ -16,10 +15,7 @@ ctrlAuth.login = (req, res, next) => {
       status: "Error, Data Incorrect ",
     });
 
-let ipdef = req.header("x-forwarded-for") || req.connection.remoteAddress;
-console.log('IPDEF ', ipdef);
-
-  const ip = req.clientIp;
+  const ip = req.header("X-Forwarded-For") || req.ip;
   const userData = {
     k_usuario: user,
     d_password: pass,
@@ -147,11 +143,11 @@ ctrlAuth.update = (req, res, next) => {
 };
 
 // Con el modelo PASSport
-ctrlAuth.register = passport.authenticate("login-local", {
-  successRedirect: "/Profile",
-  failureRedirect: "/Error",
-  passReqToCallback: true,
-});
+// ctrlAuth.register = passport.authenticate("login-local", {
+//   successRedirect: "/Profile",
+//   failureRedirect: "/Error",
+//   passReqToCallback: true,
+// });
 
 ctrlAuth.prueba = (req, res, next) => {
   res.status(200).json({ message: "Ruta a Prueba" });
