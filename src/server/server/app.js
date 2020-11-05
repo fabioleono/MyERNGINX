@@ -1,10 +1,10 @@
 const express = require("express");
 const path = require('path')
 const morgan = require('morgan');
-const requestIp = require("request-ip");
+//const requestIp = require("request-ip");
 const cors = require('cors')
-//const helmet = require('helmet')
-const session = require('express-session')
+const helmet = require('helmet')
+//const session = require('express-session')
 
 const app = express()
 
@@ -26,70 +26,43 @@ app.use(
   )
 );
 
-// SECURITY
-//app.use(helmet())
-// app.use(
-//   helmet({
-//     frameguard: false,
-//     contentSecurityPolicy: false,
-//     dnsPrefetchControl: false,
-//     xpectCt: false,
-//     hidePoweredBy: false,
-//     hsts: false,
-//     ieNoOpen: false,
-//     noSniff: false,
-//     permittedCrossDomainPolicies: false,
-//     referrerPolicy: false,
-//     xssFilter:false,
-//   })
-// );
+//SECURITY
 
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     directives: {
-//       defaultSrc: [
-//         "'self'",
-//         "https://fonts.googleapis.com/",
-//         "https://fonts.gstatic.com/",
-//       ],
-//       scriptSrc: [
-//         "'self'",
-//         "'sha256-s1eR4HA1RGXCCWhJqz18kkFqCQ4RBNXjAPyvQ2lQtrU='",
-//         "'sha256-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
-//         "'sha256-4Su6mBWzEIFnH4pAGMOuaeBrstwJN4Z3pq/s1Kn4/KQ='",
-//         "'nonce-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
-//       ],
-//       objectSrc: ["'none'"],
-//       upgradeInsecureRequests: [],
-//     },
-//   })
-// );
+// Cuando usamos un proxy por encima de node.js, simplemente tendremos que asegurarnos de identificarlo como proxy de confianza para que la dirección del cliente sea la correcta y no la del propio proxy. 
+app.set('trust proxy', true);
+
+app.use(helmet())
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [
+        "'self'",
+        "https://fonts.googleapis.com/",
+        "https://fonts.gstatic.com/",
+      ],
+      scriptSrc: [
+        "'self'",
+        "'sha256-s1eR4HA1RGXCCWhJqz18kkFqCQ4RBNXjAPyvQ2lQtrU='",
+        "'sha256-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
+        "'sha256-4Su6mBWzEIFnH4pAGMOuaeBrstwJN4Z3pq/s1Kn4/KQ='",
+        "'nonce-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
+      ],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
 
 app.use(express.json()) // recibo las solicitudes json de los clientes
 app.use(express.urlencoded({extended:false})) // recibir datos de formularios y lo conviert en objetos de javascript
-app.use(requestIp.mw()); // encontrar Ip de cliente
-
-// SESSION, espacion en memoria que se puede compartir entre multiples paginas
-app.use(session({
-  secret: process.env.KEY_SESSION,// cada sesion guardada de manera unica
-  resave: false,//evitar que se vuelva a guardar 
-  saveUninitialized: false // no permite que sean inicializadas
-}))// se configura los parametros para cuanto se deben reiniciar o alguna ip que no debe ser guardada
+//app.use(requestIp.mw()); // encontrar Ip de cliente
 
 
-app.use(cors())
+if (process.env.NODE_ENV === "development") {
+  app.use(cors()); // solo permitido el acceso a cors en peticiones en ambiente de desarrollo
+}
 
 
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method"
-//   );
-//   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-//   res.header("Allow", "GET, POST, OPTIONS, PUT, DELETE");
-//   next();
-// });
 
 
 // ROUTES

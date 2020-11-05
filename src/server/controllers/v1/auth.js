@@ -4,16 +4,9 @@ const passport = require("passport");
 const ctrlAuth = {};
 
 ctrlAuth.login = (req, res, next) => {
+   
   //console.log(req.body);
   console.log("IN FORM VALIDATION ");
-  
-  // console.log("session 1", req.session);
-  // console.log("session id 1", req.sessionID);
-
-  //req.session.destroy()
-  //res.clearCookie("connect.sid");
-  //   console.log("session 2", req.session);
-  //  console.log("session id 2", req.sessionID);
 
   const { user, pass } = req.body;
 
@@ -23,27 +16,27 @@ ctrlAuth.login = (req, res, next) => {
       status: "Error, Data Incorrect ",
     });
 
+let ipdef = req.header("x-forwarded-for") || req.connection.remoteAddress;
+console.log('IPDEF ', ipdef);
+
   const ip = req.clientIp;
   const userData = {
     k_usuario: user,
     d_password: pass,
     d_ip: ip,
-    d_session: req.sessionID,
+    d_session: '',
   };
 
   console.log("req.body ", userData);
 
   userModel.login(userData, (err, data) => {
-    if (err) {
-      req.session.destroy();
-      res.clearCookie("connect.sid");
+    if (err)
       return res.status(500).json({
         sucess: false,
         status: "Error Server DB ",
       });
-    }
+
     if (data.log === 0 || data.log === 1) {
-      req.session.ValidatorSessionAuthorization = "ValidatorSessionAuthorization"; //creo la session
       const type = data.type;
       const family = type.slice(6);
       // creo el json webtoken
@@ -52,6 +45,7 @@ ctrlAuth.login = (req, res, next) => {
         expiresIn: 60 * 60, //expiracion del token en sg
       });
       data.token = token;
+      // USERMODEL TOKEN. registra el token el campo d_session del usuario
     }
     res.status(200).json(data);
   });
@@ -73,8 +67,6 @@ ctrlAuth.logout = (req, res) => {
         sucess: false,
         status: "Error Server DB ",
       });
-    req.session.destroy();
-    res.clearCookie("connect.sid");
     res.status(200).json(data);
   });
 };

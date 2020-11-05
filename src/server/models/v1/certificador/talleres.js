@@ -1,13 +1,14 @@
 const db = require('../index')
 const modelWorkshop = {}
 
-modelWorkshop.show = (master, cb) => {
+modelWorkshop.show = (master, id, cb) => {
   let sql = `
             SELECT * FROM gnv_t_taller  
             `;
   if (parseInt(master) !== 0) {
     sql += ` WHERE r_certificador=${db.escape(master)} `;
   }
+  if(id) sql += ` AND k_taller=${db.escape(id)} `
   console.log(sql);
   
   db.query(sql, (err, result) => {

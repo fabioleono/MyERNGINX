@@ -19,7 +19,7 @@ const auth = (e) => {
   };
   setStateUser(e.target.user.value)
   axios
-    .put(url, dataForm)
+    .post(url, dataForm)
     .then((res) => {
       console.log("RESPONSE SERVER", res);
       const { token, user, type, message, log } = res.data;

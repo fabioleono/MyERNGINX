@@ -12,7 +12,8 @@ const verifyToken = require('../../helpers/v1/verifyToken');
 
 router.use(verifyToken) // para todas las siguientes rutas Verifica si hay un token valido
 router.get("/", ctrl.profile); // trae el perfil del usuario 
-router.get("/talleres/:master", ctrlWorkshop.show);
+router.get("/talleres", ctrlWorkshop.show);// muestro los talleres de la familia
+router.get("/talleres/:id", ctrlWorkshop.show)// muestro un taller
 // router.post("/talleres", ctrlWorkshop.insert);
 // router.put("/talleres/:id", ctrlWorkshop.update);
 // router.delete("/talleres/:id", ctrlWorkshop.delete);

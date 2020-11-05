@@ -25,7 +25,7 @@ const ctrlAuth = require('../../controllers/v1/auth')
 //   res.status(201).json({ messsage: "ok" });
 // })
 
-router.put('/login', ctrlAuth.login) // proceddimiento de Login
+router.post('/login', ctrlAuth.login) // proceddimiento de Login
 router.put('/logout/:user', ctrlAuth.logout) // proceddimiento de Logout y set session
 
 

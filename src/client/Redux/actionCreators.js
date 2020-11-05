@@ -63,7 +63,7 @@ export const getProfile = (family) => (dispatch) => {
 export const getWorkshops = (master, family) => (dispatch) => {
   if(master===undefined) return (window.location = `/${family}`); // recargan el browser desde family/talleres
   axios
-    .get(`${url}/${family}/talleres/${master}`, {
+    .get(`${url}/${family}/talleres?master=${master}`, {
       headers: {
         'x-access-token': localStorage.getItem("token")
       },
