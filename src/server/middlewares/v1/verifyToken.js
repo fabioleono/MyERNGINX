@@ -63,15 +63,6 @@ const verifyToken = (req, res, next) => {
           status: "No User found",
         }); // El usuario fue inactivado en la BD
 
-      
-      // if (req.sessionID !== data[0].session) {
-      //   // req.session.destroy();
-      //   // res.clearCookie("connect.sid");
-      //   return res.status(403).json({
-      //     sucess: false,
-      //     status: "Invalid Session ",
-      //   }); // El usuario inicio otra sesion. CUANDO SE REINICIA EL SERVIDOR LA SESION CAMBIA
-      // }
 
       next(); // Token, Autorizacion y Session verificado NEXT
     });

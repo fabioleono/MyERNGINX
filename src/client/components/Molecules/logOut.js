@@ -11,7 +11,7 @@ export const logOutSession = (user) => {
       return (window.location = `/`);
     })
     .catch((error) => {
-      //console.log("ERROR SET DISPATCH SESSION");
-      return (window.location = `/error`);
+      console.log("ERROR SET DISPATCH SESSION", error.response);
+      //return (window.location = `/error`);
     });
 };;

@@ -5,7 +5,7 @@ import { logOutSession } from './logOut';
 
 const subMenu = createRef()
 
-const log_Out = () => {
+const log_OutPublic = () => {
   
     localStorage.removeItem("tokenPublic");
     window.location.href = "/loginPublic";
@@ -100,7 +100,7 @@ const Profile = ({ user, family, consumer, profile }) => {
                   <NavLink to="/terminos">Terminos y Condiciones</NavLink>
                 </li>
                 <li>
-                  <span onClick={() => log_Out()}>Cerrar Sesion</span>
+                  <span onClick={() => log_OutPublic()}>Cerrar Sesion</span>
                 </li>
                 {/* <li>
                   Menu

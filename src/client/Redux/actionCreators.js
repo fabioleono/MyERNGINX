@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GET_USER, GET_PROFILE, GET_ALL_WORKSHOPS } from "./actions";
+import { GET_USER, GET_PROFILE, GET_ALL_WORKSHOPS, GET_ERRORS } from "./actions";
 const url = process.env.REACT_APP_API_URL
 
 export const getUser = (user, family) => (dispatch) => {
@@ -44,6 +44,10 @@ export const getProfile = (family) => (dispatch) => {
           user: "",
           family: ""
         });
+        dispatch({
+          type: GET_ERRORS,
+          errors: error.response.data,
+        });
         return (window.location = `/error?error=${error.response.status}`);
       } else if (error.request) {
         /*
@@ -51,10 +55,10 @@ export const getProfile = (family) => (dispatch) => {
          * is an instance of XMLHttpRequest in the browser and an instance
          * of http.ClientRequest in Node.js
          */
-        console.log(error.request);
+        console.log('Error Request frontend', error.request);
       } else {
         // Something happened in setting up the request and triggered an Error
-        console.log("Error", error.message);
+        console.log("Error Triggered", error.message);
       }
       console.log("DISPATCH ERROR ", error.config);
     });
@@ -77,7 +81,6 @@ export const getWorkshops = (master, family) => (dispatch) => {
     })
     .catch((error) => {
       console.log('ERROR DISPATCH TALLERES');
-      
       dispatch({
         type: GET_PROFILE,
         profile: ""
@@ -87,7 +90,12 @@ export const getWorkshops = (master, family) => (dispatch) => {
         user: "",
         family: ""
       });
+      dispatch({
+        type: GET_ERRORS,
+        errors: error.response.data,
+      });
       return window.location = `/error?error=${error.response.status}`
+      
     });
 }
 

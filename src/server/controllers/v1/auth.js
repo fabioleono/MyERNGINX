@@ -1,98 +1,75 @@
 const userModel = require("../../models/v1/auth");
-const jwt = require("jsonwebtoken");
+const errorHelperDB = require('../../helpers/v1/errorhelperDB')
 const ctrlAuth = {};
 
-ctrlAuth.login = (req, res, next) => {
-   
-  //console.log(req.body);
-  console.log("IN FORM VALIDATION ");
 
+ctrlAuth.login = errorHelperDB(async (req, res) => {
   const { user, pass } = req.body;
+  //console.log('REQUEST ', req);
+  
+  console.log('REQ RATE LIMIT ', req.rateLimit);
 
-  if (!user || !pass)
-    return res.status(400).json({
-      sucess: false,
-      status: "Error, Data Incorrect ",
-    });
 
+  
+  //console.log(req.body);
+  //console.log("IN FORM VALIDATION ");
+  //if(req.body) throw new Error("Error generado");
+
+  
   const ip = req.header("X-Forwarded-For") || req.ip;
   const userData = {
     k_usuario: user,
     d_password: pass,
     d_ip: ip,
-    d_session: '',
   };
+  console.log("userData ", userData);
 
-  console.log("req.body ", userData);
-
-  userModel.login(userData, (err, data) => {
-    if (err)
-      return res.status(500).json({
-        sucess: false,
-        status: "Error Server DB ",
-      });
-
-    if (data.log === 0 || data.log === 1) {
-      const type = data.type;
-      const family = type.slice(6);
-      // creo el json webtoken
-      const token = jwt.sign({ user, family }, process.env.KEY_SECRET, {
-        //expiresIn: 60 * 24 * 24, //expiracion del token en sg
-        expiresIn: 60 * 60, //expiracion del token en sg
-      });
-      data.token = token;
-      // USERMODEL TOKEN. registra el token el campo d_session del usuario
-    }
+  await userModel.login(userData, (data) => {
+    
     res.status(200).json(data);
   });
-};
+});
 
-ctrlAuth.logout = (req, res) => {
-  console.log("SALIR SESSION ", req.params);
+
+ctrlAuth.logout = errorHelperDB(async(req, res) => {
+  //console.log("SALIR SESSION ", req.params);
 
   const userOut = req.params.user;
-  if (!userOut)
-    return res.status(400).json({
-      sucess: false,
-      status: "Error, Data Incorrect ",
-    });
+  console.log('usuario salida ', userOut);
 
-  userModel.logout(userOut, (err, data) => {
-    if (err)
-      return res.status(500).json({
-        sucess: false,
-        status: "Error Server DB ",
-      });
+  await userModel.logout(userOut, (data) => {
+    //console.log("datos salida ", data);
     res.status(200).json(data);
   });
-};
+});
 
-// ctrlAuth.list = (req, res, next) => {
-//   //console.log('solicitud ', req);
-//   //console.log('respuesta ', res);
 
-//   let userData = ''
-//   if (req.params.user)  userData = req.params.user
 
-//   userModel.list(userData, (err, data) => {
+// ctrlAuth.login = (req, res, next) => {
+//   const { user, pass } = req.body;
+//   //console.log(req.body);
+//   console.log("IN FORM VALIDATION ");
+//   //if(req.body) throw new Error("Error generado");
 
-//     if (!err) {
-//       //res.status(200).json(data);
-//       res.status(200).send(data)
-//       // console.log('tipo de dato', typeof(data))
-//     } else {
-//       console.log("Mysql Error: ", err);
+//   const ip = req.header("X-Forwarded-For") || req.ip;
+//   const userData = {
+//     k_usuario: user,
+//     d_password: pass,
+//     d_ip: ip,
+//   };
 
-//       res.status(500).json({
-//         success: false,
-//         message: "Error ",
-//         data: err,
+//   console.log("userData ", userData);
+
+//   userModel.login(userData, next, (err, data) => {
+
+//     if (err) 
+//       return res.status(500).json({
+//         sucess: false,
+//         status: "Error Server DB DB ",
 //       });
-//     }
-
-//   })
-
-// }
+//     res.status(200).json(data);
+//   });
+// };
 
 ctrlAuth.update = (req, res, next) => {
   //  const token = req.headers['x-access-token']

@@ -3,14 +3,14 @@ import { persistStore, persistReducer } from "redux-persist"; // imports from re
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import { composeWithDevTools } from "redux-devtools-extension";
 import thunk from "redux-thunk";
-import { userReducer, profileReducer, workshopReducer} from "./reducers";
+import { userReducer, profileReducer, workshopReducer, errorReducer} from "./reducers";
 //import rootReducer from "./reducers"; // Root reducer
 
 const persistConfig = {
   // configuration object for redux-persist
   key: "nIeTzScHe",
   storage, // define which storage to use
-  whitelist: ["profileReducer", "userReducer"],
+  whitelist: ["profileReducer", "userReducer", "errorReducer"],
 };
 
 const persistedReducer = persistReducer(
@@ -18,6 +18,7 @@ const persistedReducer = persistReducer(
   combineReducers({
     profileReducer,
     userReducer,
+    errorReducer,
     workshopReducer
   })
 ); // create a persisted reducer

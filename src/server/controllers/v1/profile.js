@@ -7,6 +7,7 @@ ctrl.profile = (req, res) => {
 
 const user = req.userId;
 console.log('USER PROFILE REQUEST ', user);
+console.log("REQ RATE LIMIT PROFILE", req.rateLimit);
 
 if(!user) return res.status(400).json({ sucess: false, status: "user not found" }); // por algun caso no trae el dato de la verificacion del JWT y Session
 // console.log("Orig ", req.originalUrl);

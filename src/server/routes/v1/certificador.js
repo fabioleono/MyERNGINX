@@ -8,7 +8,7 @@ const ctrlWorkshop = require("../../controllers/v1/certificador/talleres");
 // const ctrlQuery = require("../../controllers/v1/certificador/consulta");
 // const ctrlDownload = require("../../controllers/v1/certificador/descarga");
 
-const verifyToken = require('../../helpers/v1/verifyToken');
+const verifyToken = require('../../middlewares/v1/verifyToken');
 
 router.use(verifyToken) // para todas las siguientes rutas Verifica si hay un token valido
 router.get("/", ctrl.profile); // trae el perfil del usuario 

@@ -2,9 +2,7 @@ const db = require('../index')
 const modelWorkshop = {}
 
 modelWorkshop.show = (master, id, cb) => {
-  let sql = `
-            SELECT * FROM gnv_t_taller  
-            `;
+  let sql = ` SELECT * FROM gnv_t_taller  `;
   if (parseInt(master) !== 0) {
     sql += ` WHERE r_certificador=${db.escape(master)} `;
   }

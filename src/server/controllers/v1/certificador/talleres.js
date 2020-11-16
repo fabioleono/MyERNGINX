@@ -2,7 +2,7 @@ const modelWorkshop = require('../../../models/v1/certificador/talleres')
 const ctrlWorkshop ={}
 
 ctrlWorkshop.show = (req, res, next) => {
-  console.log('HEADERS ', req.headers);
+  //console.log('HEADERS ', req.headers);
   
   console.log("HEADER HOST ", req.hostname);
   console.log("IP ", req.ip);
@@ -15,20 +15,8 @@ ctrlWorkshop.show = (req, res, next) => {
   console.log('query ', req.query);
   console.log("params ", req.params);
   console.log('methods ', req.method);
+  console.log("REQ RATE LIMIT TALLERES", req.rateLimit);
   
-  //console.log("Session ", req.sessionID);
-  // req.session.destroy();
-  // res.clearCookie("connect.sid");
-  // if (req.session.tecnicos) {
-  //   req.session.tecnicos += 1;
-  //   console.log("existe");
-  // } else {
-  //   console.log("no existia");
-
-  //   req.session.tecnicos = 1;
-  // }
-  // console.log("session tecnicos ", req.session.tecnicos);
-  // console.log("Orig ", req.originalUrl," url ",req.url," params ",req.params  );
 
   const master = req.query.master;
   const id = req.params.id 

@@ -5,7 +5,7 @@ const ctrlWorkshop = require('../../controllers/v1/gobierno/talleres')
 // const ctrlQueryAll = require("../../controllers/v1/gobierno/consultaTotal");
 // const ctrlDownloadAll = require("../../controllers/v1/gobierno/descargaTotal");
 
-const verifyToken = require("../../helpers/v1/verifyToken");
+const verifyToken = require("../../middlewares/v1/verifyToken");
 
 router.use(verifyToken);
 

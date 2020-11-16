@@ -1,11 +1,13 @@
 import React from "react";
 import { useEffect } from "react";
-const Error = ({ location }) => {
+import { connect } from "react-redux";
+
+const Error = ({ location, errors }) => {
   const params = new URLSearchParams(location.search);
   const error = params.get("error");
   useEffect(() => {
     window.addEventListener("load", () => {
-      console.log("FALLOS EN AUTENTICACION");
+      //console.log("FALLOS EN AUTENTICACION");
       localStorage.removeItem("token");
       localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
     });
@@ -14,6 +16,7 @@ const Error = ({ location }) => {
     <div>
       <h2>UNA LINDA PAGINA DE ERROR {error} </h2>
       <p>ERROR </p>
+  <p>Definido por: {errors}</p>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti at
         maiores dolor commodi doloremque eum suscipit vero animi, veniam
@@ -76,4 +79,9 @@ const Error = ({ location }) => {
     </div>
   );
 };
-export default Error;
+const mapStateToProps = (state) => ({
+  errors: state.errorReducer.errors,
+}); 
+const mapDispatchToProps = state => ({})
+  
+export default connect(mapStateToProps,mapDispatchToProps)(Error);

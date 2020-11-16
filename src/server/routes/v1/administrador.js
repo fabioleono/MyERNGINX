@@ -4,7 +4,7 @@ const ctrl = require("../../controllers/v1/profile");
 // const ctrlRols = require("../../controllers/v1/admin/roles");
 // const ctrlFamilies = require("../../controllers/v1/admin/familias");
 // const ctrlModuls = require("../../controllers/v1/admin/modulos");
-const verifyToken = require("../../helpers/v1/verifyToken");
+const verifyToken = require("../../middlewares/v1/verifyToken");
 
 router.use(verifyToken)
 router.get('/', ctrl.profile);

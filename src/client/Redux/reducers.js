@@ -2,7 +2,7 @@ import {
   GET_USER,
   GET_PROFILE,
   GET_ALL_WORKSHOPS,
-  
+  GET_ERRORS,
 } from "./actions";
 
 export const userReducer = (state={}, action) => {
@@ -17,18 +17,24 @@ export const userReducer = (state={}, action) => {
 }
 
 export const profileReducer = (state={}, action) => {
-  
   if(action.type===GET_PROFILE){
     return {
       ...state,
       profile: action.profile
-      
     }
-    
   }
-  
   return state
 }
+
+export const errorReducer = (state = {}, action) => {
+  if (action.type === GET_ERRORS) {
+    return {
+      ...state,
+      errors: action.errors,
+    };
+  }
+  return state;
+};
 
 export const workshopReducer = (state = {}, action) => {
   if (action.type === GET_ALL_WORKSHOPS) {

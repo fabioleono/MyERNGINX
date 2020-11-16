@@ -1,71 +1,178 @@
 const db = require("./index");
-//const helpers = require('../helpers/index')
-
+const jwt = require("jsonwebtoken");
+const FormError = require("../../error/v1/formValidatedError");
 const userModel = {};
 
-
-userModel.login = (userData, cb) => {
+userModel.login = async (userData, callback) => {
   const sql = `
             SET @user = ?;
             SET @password = ?;
-            SET @address = ?;
-            SET @id = ?;
-            CALL gnv_p_user_login(@user, @password, @address, @id, @login, @name, @lastDate, @ip, @message, @master, @type);
-            SELECT @login AS log, @name AS name, @lastDate AS lastDate, @ip AS ip, @message AS message, @master AS master, @type AS type; 
+            SET @ip = ?;
+            CALL gnv2_p_user_login_validate(@user, @password, @ip, @error, @errMsg, @lastDate, @master, @family);
+            SELECT @error AS error, @errMsg AS errMsg, @lastDate AS lastDate, @master AS master, @family AS family; 
             `;
-  // console.log('query ', sql);
-  const data = {};
-  data.user = userData.k_usuario;
-  db.query(
-    sql,
-    [
-      userData.k_usuario,
-      userData.d_password,
-      userData.d_ip,
-      userData.d_session,
-    ],
-    (err, result, fields) => {
-      // console.log('result', result);
-      if (err) {
-        cb(err, { status: "ERROR QUERY ", data: err });
+    //console.log('query ', sql);
+    const data = {
+      user: userData.k_usuario,
+      ip: userData.d_ip,
+    };
+    
+      const result = await db.query(sql, [
+        userData.k_usuario,
+        userData.d_password,
+        userData.d_ip,
+      ]);
+      //console.log("results dB ", result);
+      result.flat().forEach(e=>{
+        if(e.error!==undefined){
+          data.process = e.error
+          data.message = e.errMsg
+          data.lastDate = e.lastDate
+          data.master = e.master
+          data.family = e.family
+        }
+      })
+      if (data.process !== 0) {
+        //console.log('ERRORES DE VALIDACION DB');
+        throw new FormError(data).toJson();
+       
       } else {
-        result
-          .flat() // La query trae un arreglo anidado con el resultado de la validacion del procedimiento mysql, con el metodo flat se crea un nuevo arreglo sin anidar
-          .forEach((e) => {
-            //recorro el arreglo y completo la data de salida
-            data.log = e.log;
-            data.name = e.name;
-            data.lastDate = e.lastDate;
-            data.ip = e.ip;
-            data.message = e.message;
-            data.master = e.master;
-            data.type = e.type;
-          });
-        cb(null, data);
+        //console.log("DATA VALIDACION ", data);
+        // GENERACION DE TOKEN
+        // creo el json webtoken
+        const token = jwt.sign(
+          { user: data.user, family: data.family },
+          process.env.KEY_SECRET,
+          {
+            //expiresIn: 60 * 24 * 24, //expiracion del token en sg
+            expiresIn: 60 * 60, //expiracion del token en sg
+          }
+        );
+        data.token = token;
+        // ACTUALIZACION SESSION CON TOKEN
+        const sqlupdt = `
+        SET @user = ?;
+        SET @token = ?;
+        SET @ip = ?;
+        CALL gnv2_p_user_login_auth(@user, @token, @ip, @flag);
+        SELECT @flag AS flag;
+        `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO
+
+        const resultUpdt = await db.query(sqlupdt, [
+          data.user,
+          token,
+          data.d_ip,
+        ]);
+        //console.log("result DBupdate ", resultUpdt);
+        resultUpdt.flat().forEach((e) => {
+          data.flag = e.flag;
+        });
+        console.log('DATA AUTORIZACION ', data);
+        callback(data);
       }
-    }
-  );
 };
 
-
-userModel.logout = (userOut, cb) => {
+userModel.logout = async (userOut, callback) => {
   const sql = `
             SET @user = ?;
-            CALL gnv_p_salir(@user);
+            CALL gnv2_p_salir(@user);
             `;
-   console.log('query ', sql);
-  
-  db.query(sql,[userOut], (err, result, fields) => {
-      // console.log('result', result);
-      if (err) {
-        cb(err, { status: "ERROR QUERY ", data: err });
-      } else {
-        
-        cb(null, result);
-      }
-    }
-  );
+  //console.log("query ", sql);
+  const result = await db.query(sql,[userOut])
+  //console.log('result ', result);
+  callback(result)
+
 };
+
+
+// userModel.login = (userData, next, cb) => {
+//   const sql = `
+//             SET @user = ?;
+//             SET @password = ?;
+//             SET @ip = ?;
+//             CALL gnv2_p_user_login_validate(@user, @password, @ip, @error, @errMsg, @lastDate, @master, @family);
+//             SELECT @error AS error, @errMsg AS errMsg, @lastDate AS lastDate, @master AS master, @family AS family; 
+//             `;
+//   //console.log('query ', sql);
+//   const data = {
+//     user: userData.k_usuario,
+//     ip: userData.d_ip,
+//   };
+  
+//   db.query(
+//     sql,
+//     [
+//       userData.k_usuario,
+//       userData.d_password,
+//       userData.d_ip,
+//     ],
+//     (err, result, fields) => {
+//       if (err) {
+//         //console.log("ERROR QUERY ", err);
+//         cb(err, { status: "ERROR QUERY ", sucess: false });
+       
+//        //throw new Error('ERROR')
+       
+//       } else {
+//         //console.log('result ', result);
+//         result
+//           .flat() // La query trae un arreglo anidado con el resultado de la validacion del procedimiento mysql, con el metodo flat se crea un nuevo arreglo sin anidar
+//           .forEach((e) => {
+//             //recorro el arreglo y completo la data de salida
+//           if (e.error!==undefined) { // no tiene en cuenta los resultados OnPacket
+//               data.process = e.error;
+//               data.message = e.errMsg;//Para que tenga la misma designacion de las clases Error
+//               data.lastDate = e.lastDate;
+//               data.master = e.master;
+//               data.family = e.family;
+//             }
+//           });
+//           // console.log("DATA ", data);
+//           if(data.process!==0){
+//             //cb(null, data);
+//             try {
+//               throw new Error('Error en Validacion');
+//             } catch (error) {
+//                 next(new FormError(data).toJson())
+//             }
+//           }else{
+//             //console.log("DATA VALIDACION ", data);
+//             // GENERACION DE TOKEN
+            
+//             // creo el json webtoken
+//             const token = jwt.sign({ user:data.user, family:data.family }, process.env.KEY_SECRET, {
+//               //expiresIn: 60 * 24 * 24, //expiracion del token en sg
+//               expiresIn: 60 * 60, //expiracion del token en sg
+//             });
+//             console.log('TOKEN ', token.length);
+//             data.token = token;
+
+//             // ACTUALIZACION SESSION CON TOKEN 
+//             const sqlupdt = `
+//             SET @user = ?;
+//             SET @token = ?;
+//             SET @ip = ?;
+//             CALL gnv2_p_user_login_auth(@user, @token, @ip, @flag);
+//             SELECT @flag AS flag; 
+//             `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO
+//             db.query(sqlupdt,[data.user, token, data.d_ip], (errUpdt, resultUpdt, fields) => {
+//               if (errUpdt){
+//                // console.log("ERROR QUERYUPDATE ", errUpdt);
+//                 cb(err, { status: "ERROR QUERYUPDATE ", sucess: false });
+               
+//               }else{
+//                 // DATA RESPUESTA AUTENTICACION
+//                 resultUpdt.flat().forEach((e) => {data.flag=e.flag})
+//                 //console.log('DATA AUTORIZACION ', data);
+//                 cb(null, data);
+//               }
+//             })
+//           }
+//       }
+//     }
+//   );
+// };
+
 
 
 

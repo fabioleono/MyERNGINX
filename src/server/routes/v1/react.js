@@ -13,7 +13,6 @@ const routesReact = [
   "/infopublica/:consumer",
   "/users",
   "/error",
-  "*",
 ];
 module.exports = routesReact
 
