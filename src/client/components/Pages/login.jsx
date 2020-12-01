@@ -48,7 +48,7 @@ const Login = () => {
         return (window.document.getElementById("msg_form").innerHTML =
           error.response.data);
       }
-
+// Cambiar el switch por un if elseif- Mejor rendimiento
       switch (process) {
         case 3: //determinado en el procedimiento.Session Abierta
           setStateLog(process);

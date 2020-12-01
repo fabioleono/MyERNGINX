@@ -74,6 +74,14 @@ export const getWorkshops = (master, family) => (dispatch) => {
     })
     .then((res) => {
       console.log("DATA DISPATCH TALLERES ", res.data);
+      let lengthDta;
+      try {
+        lengthDta = Buffer.byteLength(JSON.stringify(res.data));
+      } catch (error) {
+        console.log("error basico ", error);
+      }
+
+      console.log("SIZE ", lengthDta);
       return dispatch({
         type: GET_ALL_WORKSHOPS,
         workshops: res.data

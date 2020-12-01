@@ -1,9 +1,12 @@
 const userModel = require("../../models/v1/auth");
 const errorHelperDB = require('../../helpers/v1/errorhelperDB')
 const ctrlAuth = {};
-
+//const logger = require("pino")("./info.log");
 
 ctrlAuth.login = errorHelperDB(async (req, res) => {
+  //req.log.info('MUESTRA MENSAJE ')
+  //console.log('reqLogger ', req.log);
+  
   const { user, pass } = req.body;
   //console.log('REQUEST ', req);
   
