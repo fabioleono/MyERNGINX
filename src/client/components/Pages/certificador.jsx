@@ -1,22 +1,22 @@
 
 
-import React, { useEffect } from "react";
+import React from "react";
 import { getProfile } from "../../Redux/actionCreators";
 import { store } from "../../Redux/store";
 import { connect } from "react-redux";
+import { useEffect } from "react";
 
 
-const Certificador = ({ location, user, family }) => {
+const Certificador = ({ location, user }) => {
   //const user = match.params.user
-  console.log('RENDER CERTIFICADOR.JSX ');
+  console.log('INICIA CERTIFICADOR.JSX ');
+  // const familyProfile = location.pathname.split("/")[1];
+  // store.dispatch(getProfile(familyProfile));
   
-
   useEffect(() => {
     const familyProfile = location.pathname.split("/")[1];
-    // console.log('FAMILY ', familyProfile);
-    console.log('TERMINO DE CARGAR EL RENDER CERTIFICADOR ');
-    
     store.dispatch(getProfile(familyProfile));
+     console.log("TERMINA RENDERIZADO CERTIFICADOR ");
   }, [location]);
 
   return (
@@ -32,9 +32,9 @@ const Certificador = ({ location, user, family }) => {
   );
   
 };
+
 const mapStateToProps = (state) => ({
   user: state.userReducer.user,
-  family: state.userReducer.family,
 });
 export default connect(mapStateToProps, {})(Certificador);
 

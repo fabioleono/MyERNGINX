@@ -9,10 +9,11 @@ const ctrlWorkshop = require("../../controllers/v1/certificador/talleres");
 // const ctrlDownload = require("../../controllers/v1/certificador/descarga");
 
 const verifyToken = require('../../middlewares/v1/verifyToken');
+const verifyCache = require('../../middlewares/v1/verifyCache')
 
 router.use(verifyToken) // para todas las siguientes rutas Verifica si hay un token valido
 router.get("/", ctrl.profile); // trae el perfil del usuario 
-router.get("/talleres", ctrlWorkshop.show);// muestro los talleres de la familia
+router.get("/talleres", verifyCache, ctrlWorkshop.show);// muestro los talleres de la familia
 router.get("/talleres/:id", ctrlWorkshop.show)// muestro un taller
 // router.post("/talleres", ctrlWorkshop.insert);
 // router.put("/talleres/:id", ctrlWorkshop.update);

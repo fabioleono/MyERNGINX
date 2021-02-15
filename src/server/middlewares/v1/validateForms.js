@@ -1,18 +1,11 @@
-
-
 const FormError = require("../../error/v1/formValidatedError")
-
 const validation = (schema) => {
-
   return async (req, res, next) => {
     try {
       const validatedBody = await schema.validate(req.body)
       req.body = validatedBody
       next()
     } catch (error) {
-      //res.status(400).json(error)
-      //console.log("DATA ERROR VALIDACION FORMULARIOS ", error);
-      //next(ApiError.badRequest(400, error))
       next(new FormError(error).toJson())
     }
 

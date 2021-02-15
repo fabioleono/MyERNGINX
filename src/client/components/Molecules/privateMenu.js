@@ -7,7 +7,7 @@ const PrivateMenu = ( { family } ) => {
 // console.log('location ', location);
 // console.log('match ', match);
 
-// console.log('PRIVATE MENU  ', family);
+ console.log('PRIVATE MENU  ', family);
 
 
   return (
@@ -24,6 +24,6 @@ const mapStateToProps = (state) => ({
   family: state.userReducer.family,
 });
 
-const mapDispatchToProps = () => ({})
 
-export default connect(mapStateToProps, mapDispatchToProps)(PrivateMenu); 
+
+export default connect(mapStateToProps, {})(PrivateMenu); 

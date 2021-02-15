@@ -5,9 +5,12 @@ import PrivateInfoMenu from "../Molecules/privateInfoMenu";
 import PublicMenu from "../Molecules/publicMenu";
 import PublicInfoMenu from "../Molecules/publicInfoMenu";
 import Profile from '../Molecules/profile';
+//import ProfilePublic from '../Molecules/profilePublic'
+import { connect } from 'react-redux';
 
 
-const NavMenu = () => {
+const NavMenu = ( { profile, user  }) => {
+
   return (
     <>
       <div className="container">
@@ -25,28 +28,38 @@ const NavMenu = () => {
               <NavLink to="/contacto">Contactenos</NavLink>
             </li>
 
-            {localStorage.getItem("token") ? <PrivateMenu /> : <PublicMenu />}
+            {(localStorage.getItem("token") && user) ? <PrivateMenu /> : <PublicMenu />}
             {localStorage.getItem("tokenPublic") ? (
               <PrivateInfoMenu />
             ) : (
               <PublicInfoMenu />
             )}
-
-            <li>
-              <NavLink to="/users">Test</NavLink>
-            </li>
           </ul>
         </nav>
-        {localStorage.getItem("token") ||
-        localStorage.getItem("tokenPublic") ? (
-          <Profile />
-        ) : (
-          <div className="user_Profile">
-            {/* <img src="/images/favicon.png" alt="" height="48px" width="48px" /> */}
-          </div>
-        )}
+        {(profile && user) ? <Profile />
+          : (
+        <div className="user_Profile">
+          <img
+            src="/images/emptProfile.png"
+            alt=""
+            height="50px"
+            width="50px"
+            
+          />
+        </div>
+      )
+      }
+        {/* {consumer && <ProfilePublic />} */}
       </div>
     </>
   );
 }
-export default NavMenu  
+
+const mapStateToProps = (state) => ({
+  user: state.userReducer.user,
+  profile: state.profileReducer.profile,
+  // consumer: state.publicReducer.consumer,
+}); 
+
+  
+export default connect(mapStateToProps,{})(NavMenu)  

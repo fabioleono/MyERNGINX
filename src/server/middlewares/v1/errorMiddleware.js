@@ -1,20 +1,24 @@
-const apiErrorHandler = (error, req, res, next) => {
+const apiError = (error, req, res, next) => {
   //console.log('Error Middleware ', error);
-  req.log.error(`ERROR MIDDLEWARE: `);
+  req.log.error(`ERROR MIDDLEWARE: ${error}`);
   for (const e in error) {
     req.log.error(`${e}: ${error[e]}`);
   }
- 
-  if(error.name==='Form Validation Error'){ // Error por validaciones de Formularios
-    return res.status(error.status).json(error)
-  }else{
+  const { name, status }= error
+  console.log('name Error', name);
+  console.log('status Error', status);
+  
+  
+  if (name === "Form Validation Error") {
+    return res.status(status).json(error); // Error por validaciones de Formularios
+  } else {
     return res.status(500).json({
-      name: 'Server error',
-      messagge: 'Something Went Wrong M'
-    })
+      name: "Server error",
+      messagge: "Something Went Wrong Mi",
+    });
   }
   
   
 }
 
-module.exports = apiErrorHandler
+module.exports = apiError

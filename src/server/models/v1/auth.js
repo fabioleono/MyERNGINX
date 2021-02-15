@@ -22,7 +22,6 @@ userModel.login = async (userData, callback) => {
         userData.d_password,
         userData.d_ip,
       ]);
-      //console.log("results dB ", result);
       result.flat().forEach(e=>{
         if(e.error!==undefined){
           data.process = e.error
@@ -44,8 +43,9 @@ userModel.login = async (userData, callback) => {
           { user: data.user, family: data.family },
           process.env.KEY_SECRET,
           {
-            //expiresIn: 60 * 24 * 24, //expiracion del token en sg
-            expiresIn: 60 * 60, //expiracion del token en sg
+            //expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
+            expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
+            //expiresIn: 60, //expiracion del token en sg, 1 minuto
           }
         );
         data.token = token;
@@ -61,7 +61,7 @@ userModel.login = async (userData, callback) => {
         const resultUpdt = await db.query(sqlupdt, [
           data.user,
           token,
-          data.d_ip,
+          data.ip,
         ]);
         //console.log("result DBupdate ", resultUpdt);
         resultUpdt.flat().forEach((e) => {

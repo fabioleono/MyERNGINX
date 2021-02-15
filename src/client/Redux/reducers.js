@@ -2,17 +2,16 @@ import {
   GET_USER,
   GET_PROFILE,
   GET_ALL_WORKSHOPS,
-  GET_ERRORS,
 } from "./actions";
 
 export const userReducer = (state={}, action) => {
-  if(action.type===GET_USER){
+  if (action.type === GET_USER) {
     return {
       ...state,
       user: action.user,
       family: action.family,
-    }
-  }
+    };
+  } 
   return state
 }
 
@@ -26,22 +25,25 @@ export const profileReducer = (state={}, action) => {
   return state
 }
 
-export const errorReducer = (state = {}, action) => {
-  if (action.type === GET_ERRORS) {
+export const workshopReducer = (state = {}, action) => {
+  if (action.type === GET_ALL_WORKSHOPS) {
     return {
       ...state,
-      errors: action.errors,
-    };
+      workshops: action.workshops
+    }
   }
   return state;
 };
 
-export const workshopReducer = (state = {}, action) => {
-  if (action.type === GET_ALL_WORKSHOPS) {
-    return action.workshops;
-  }
-  return state;
-};
+// export const errorReducer = (state = {}, action) => {
+//   if (action.type === GET_ERRORS) {
+//     return {
+//       ...state,
+//       errors: action.errors,
+//     };
+//   }
+//   return state;
+// };
 
 // export const sessionReducer = (state = {}, action) => {
 //   if (action.type === SET_SESSION) {

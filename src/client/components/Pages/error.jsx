@@ -1,22 +1,28 @@
 import React from "react";
-import { useEffect } from "react";
-import { connect } from "react-redux";
+//import { useEffect } from "react";
+//import { connect } from "react-redux";
+// import { setUser } from "../../Redux/actionCreators";
+// import { store } from "../../Redux/store";
 
-const Error = ({ location, errors }) => {
+
+const Error = ({ location }) => {
   const params = new URLSearchParams(location.search);
   const error = params.get("error");
-  useEffect(() => {
-    window.addEventListener("load", () => {
-      //console.log("FALLOS EN AUTENTICACION");
-      localStorage.removeItem("token");
-      localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-    });
-  }, [location]);
+   
+  // useEffect(() => {
+  //   
+  //   window.addEventListener("load", () => {
+  //    
+  //   });
+  // }, [location]);
   return (
     <div>
-      <h2>UNA LINDA PAGINA DE ERROR {error} </h2>
-      <p>ERROR </p>
-  <p>Definido por: {errors}</p>
+      {error && (
+        <div>
+          <h2>UNA LINDA PAGINA DE ERROR {error} </h2>
+          <p>ERROR </p>
+        </div>
+      )}
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti at
         maiores dolor commodi doloremque eum suscipit vero animi, veniam
@@ -78,10 +84,9 @@ const Error = ({ location, errors }) => {
       </p>
     </div>
   );
-};
-const mapStateToProps = (state) => ({
-  errors: state.errorReducer.errors,
-}); 
-const mapDispatchToProps = state => ({})
+};;
+
+
   
-export default connect(mapStateToProps,mapDispatchToProps)(Error);
+  
+export default Error;

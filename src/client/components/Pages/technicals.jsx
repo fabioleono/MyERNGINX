@@ -9,4 +9,5 @@ const Technicals = () => {
     </div>
   )
 }
+
 export default Technicals

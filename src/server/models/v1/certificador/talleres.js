@@ -1,27 +1,16 @@
 const db = require('../index')
 const modelWorkshop = {}
 
-modelWorkshop.show = (master, id, cb) => {
-  let sql = ` SELECT * FROM gnv_t_taller  `;
+modelWorkshop.show = async (master, id, callback) => {
+  let sql = ` SELECT * FROM gnv_t_taller  WHERE n_estado!='4' `;
   if (parseInt(master) !== 0) {
-    sql += ` WHERE r_certificador=${db.escape(master)} `;
+    sql += ` AND r_certificador=${db.escape(master)} AND k_taller='177' `;
   }
   if(id) sql += ` AND k_taller=${db.escape(id)} `
   console.log(sql);
-  
-  db.query(sql, (err, result) => {
-    
-    
-    if (err) {
-      
-      //throw err
-      cb(err, { status: "ERROR QUERY", data: err });
-    } else {
-      //console.log("PASA POR ACA");
-      cb(null, result);
-    }
-  });
-
+  const result = await db.query(sql)
+  const data = Object.values(JSON.parse(JSON.stringify(result)));
+  callback(data)
 };
 
 //exports.default = userProfile

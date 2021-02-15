@@ -40,11 +40,7 @@ const Routes = () => {
         <Protected path="/certificador/talleres" component={Workshops} />
         <Protected path="/certificador" component={Certificador} />
         
-        {/* <Protected path="/certificador"> */}
-          {/* Para casos donde el usuario recargue al browser en la ruta base */}
-          {/* <Redirect to="/login" /> */}
-        {/* </Protected> */}
-
+        
         {/* Rutas Familia Administrador*/}
 
         <Protected path="/administrador/talleres/tecnicos" component={Technicals} />

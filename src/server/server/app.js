@@ -20,6 +20,7 @@ app.set("port", process.env.PORT || 5000);
 //comprimir todas las respuestas HTTP
 app.use(compression())
 
+
 // lOGS
 const pino = require('pino')
 const opts = {
@@ -99,16 +100,13 @@ app.use(
     },
   })
 );
-
-
 //app.use(favicon(path.join(__dirname, "../", "public/images/favicon.png")));
-
 
 // LIMITADOR DE SOLICITUDES
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: process.env.REQ_PER_MINUTE || 30, // Numero de salicitudes a la API
-  message: "Too Many Request. Please Try Later"
+  max: process.env.REQ_PER_MINUTE || 30, // Numero de salicitudes a la API X IP
+  message: process.env.REACT_APP_MSG_REQ_PER_MINUTE
 });
 
 //limitacion de json recibidos en el body
