@@ -1,20 +1,22 @@
 const redis = require('redis')
-const port_redis = process.env.PORT_REDIS || 6379
+const port = process.env.PORT_REDIS || 6379
 
-const redis_client = redis.createClient(port_redis)
-
-redis_client.on("error", (error) => {
+//const redisClient = redis.createClient(port_redis)
+const redisClient = redis.createClient({
+  port,
+  enable_offline_queue: false, // De manera predeterminada=TRUE. Si no hay conexion con redis los comandos se van agregando en cola y se ejecutan luego de la conexion. EN FALSE se desactivara y emitira un error o una funcion callback con el error. SI SE CAE EL SERVICIO DE REDIS (no hay cacheo de datos ni conteo  de solicitudes por ip y usuario ), SE PUEDE MANEJAR EL ERROR Y NO ME BLOQUEA EL FLUJO DE LA APP
+});
+redisClient.on("error", (error) => {
   console.log('Redis NOT CONNECTED ',  error);
-  // si hay un error en el servidor de redis, cierra la conexion para permitir trabajar todas las consultas sobre Mysql (NO HAY CACHEO DE DATOS EN REDIS)
-  redis_client.quit();
+
 });
 
-redis_client.on("connect", () => {
-  console.log("Redis CONNECTED: ", redis_client.connected);
+redisClient.on("connect", () => {
+  console.log("Redis CONNECTED: ", redisClient.connected);
   
 });
 
-module.exports = redis_client
+module.exports = redisClient
 
 // var redis = require("redis");
 // const port_redis = process.env.PORT_REDIS || 6379;

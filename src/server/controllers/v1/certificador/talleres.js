@@ -1,14 +1,14 @@
 const modelWorkshop = require('../../../models/v1/certificador/talleres')
-const redisClient = require('../../../models/v1/redis')
 const errorHelperCtrl = require('../../../helpers/v1/errorhelperCtrl');
 
 const ctrlWorkshop ={}
 
 ctrlWorkshop.show = errorHelperCtrl(async(req, res) => {
+
   // console.log('query ', req.query);
   // console.log("params ", req.params);
   // console.log('methods ', req.method);
-  console.log("TALLERES RRL ", req.rateLimit);
+  //console.log("TALLERES RRL ", req.rateLimit);
   const master = req.query.master;
   const id = req.params.id;
   //const keyRedis = `T_${master}_${id}`;
@@ -18,10 +18,6 @@ ctrlWorkshop.show = errorHelperCtrl(async(req, res) => {
   
   await modelWorkshop.show(master, id, (data) => {    
     req.log.warn(`Consulta a Perfil Talleres-> usuario:${req.userId}`);
-    redisClient.setex("algo2", 3600, JSON.stringify(data), (err, resRedis) => {
-      if (err) req.log.error(`Error Redis: ${err}`); else  req.log.warn(`Respuesta Redis: ${resRedis}`);
-    });
-    
     res.status(200).json(data);
     // let lengthDta
     // try {

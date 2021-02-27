@@ -1,18 +1,27 @@
 //const userProfile = require('../../../models/v1/certificador/profile')
+//const { RateLimiterMemory } = require("rate-limiter-flexible");
 const ctrlTechnical = {};
 
+
+
+
 ctrlTechnical.show = (req, res, next) => {
-  console.log(
-    "Orig ",
-    req.originalUrl,
-    " url ",
-    req.url,
-    " params ",
-    req.params,
-    " token ",
-    req.decoded
-  );
-  res.send("Obtener todos los Tecnicos de Tecnico de Taller");
+
+    const ip = req.header("X-Forwarded-For") || req.ip;
+    
+    //const respHeaders = res.getHeaders();
+    // console.log(
+    //   typeof respHeaders["rate"],
+    //   JSON.parse(respHeaders["rate"]),
+    //   JSON.parse(respHeaders["rate"]).remainingPoints,
+    //   parseInt(respHeaders["remaining"])
+    // );
+    //console.log("remaining ", JSON.parse(respHeaders["rate"]));
+    
+    
+  res.status(200).json({name: 'tecnicos taller'});
+
+  
 
 
   // userProfile.menu(user, (err, data) => {

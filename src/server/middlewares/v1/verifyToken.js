@@ -2,13 +2,11 @@ const jwt = require("jsonwebtoken");
 const errorHelperToken = require('../../helpers/v1/errorhelperToken')
 const TokenError = require("../../error/v1/tokenValidatedError");
 const modelProfile = require("../../models/v1/profile");
-const dtoMail = require('../../dto/v1/mail/verifyRRL')
-const nodemailer  = require('nodemailer');
 
 // Modelo Async Await
 const verifyToken = errorHelperToken(async(req, res, next) => {
   const ip = req.header("X-Forwarded-For") || req.ip;
-  console.log("VERIFY TOKEN RRL: ", req.rateLimit, "  ip: ", ip);
+  //console.log("VERIFY TOKEN RRL: ", req.rateLimit, "  ip: ", ip);
   const token =
     req.body.access_token ||
     req.query.access_token ||
@@ -17,7 +15,7 @@ const verifyToken = errorHelperToken(async(req, res, next) => {
   const decoded = await jwt.verify(token, process.env.KEY_SECRET);
   //const { user, family } = decoded;
   const { user, family, iat, exp } = decoded;
-  console.log('TOKEN Generado en ', new Date(iat*1000) , ' --  TOKEN Expira en ', new Date(exp*1000));
+  //console.log('TOKEN Generado en ', new Date(iat*1000) , ' --  TOKEN Expira en ', new Date(exp*1000));
   
   req.userId = user; // Cargo en todos los request el Usuario
   req.family = family; // Cargo en todos los request la Familia
@@ -31,16 +29,7 @@ const verifyToken = errorHelperToken(async(req, res, next) => {
     };
     throw new TokenError(jwtErrorFamily).toJson();
   }
-  // NOTIFICACION DE REQ RATE LIMIT
-  if (req.rateLimit.remaining === 1) {
-    const transporter = nodemailer.createTransport(dtoMail.objMail);
-    // const infoMailer = await transporter.sendMail(
-    //   dtoMail.headerMail(user, family, ip)
-    // );
-    req.log.warn(`ENVIO MAIL Request Rate Limit-> usuario: ${user} ip:${ip}`);
-    //console.log("Message send", infoMailer.messageId);
-  }
-  // VALIDACION QUE EL USUARIO ESTE ACTIVO EN LA BD Y QUE EL TOKEN DE AUTORIZACION SEA EL MISMO GENERADO PARA EL USUARIO.
+   // VALIDACION QUE EL USUARIO ESTE ACTIVO EN LA BD Y QUE EL TOKEN DE AUTORIZACION SEA EL MISMO GENERADO PARA EL USUARIO.
   await modelProfile.verifyUser(user, (data) => {
     if (data.length === 0) {
       const jwtErrorUser = {
@@ -56,7 +45,7 @@ const verifyToken = errorHelperToken(async(req, res, next) => {
         message: "User has another session open",
       };
       throw new TokenError(jwtErrorUser).toJson();
-    }else{
+     }else{
       next(); // Token, Autorizacion y Session verificado NEXT
     }
   });

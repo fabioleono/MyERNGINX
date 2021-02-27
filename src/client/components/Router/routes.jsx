@@ -17,7 +17,7 @@ import Info from '../Pages/info'
 import Technicals from '../Pages/technicals'
 import Error from '../Pages/error' 
 import Administrador from '../Pages/administrador'
-
+import NewPass from '../Pages/newPass' 
 
 
 const Routes = () => {
@@ -30,25 +30,30 @@ const Routes = () => {
         <Route path="/contacto" exact component={Contact} />
         <Route path="/users" exact component={Users} />
         <PublicInfo path="/loginpublic" exact component={LoginPublic} />
+        <Public path="/login/password" exact component={NewPass} />
         <Public path="/login" exact component={Login} />
-        
+
         <ProtectedInfo path="/infopublica/:consumer" component={Info} />
 
-          {/* Rutas Familia Certificador */}
+        {/* Rutas Familia Certificador */}
 
-        <Protected path="/certificador/talleres/tecnicos" component={Technicals} />
+        <Protected
+          path="/certificador/talleres/tecnicos"
+          component={Technicals}
+        />
         <Protected path="/certificador/talleres" component={Workshops} />
         <Protected path="/certificador" component={Certificador} />
-        
-        
+
         {/* Rutas Familia Administrador*/}
 
-        <Protected path="/administrador/talleres/tecnicos" component={Technicals} />
+        <Protected
+          path="/administrador/talleres/tecnicos"
+          component={Technicals}
+        />
         <Protected path="/administrador/talleres" component={Workshops} />
         <Protected path="/administrador" component={Administrador} />
-        
+
         <Route path="/error" exact component={Error} />
-        
 
         <Route
           component={() => (

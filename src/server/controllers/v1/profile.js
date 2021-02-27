@@ -6,7 +6,7 @@ const ctrl = {} // creo el objeto controlador
 
 ctrl.profile = errorHelperCtrl(async(req, res) => {
   const user = req.userId;
-  console.log("PROFILE RRL ", req.rateLimit, ' usuario ', user);
+  //console.log("PROFILE RRL ", req.rateLimit, ' usuario ', user);
   await modelProfile.menu(user, (data) => {
     res.status(200).json(data);
   });

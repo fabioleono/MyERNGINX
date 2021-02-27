@@ -2,74 +2,129 @@ const db = require("./index");
 const jwt = require("jsonwebtoken");
 const FormError = require("../../error/v1/formValidatedError");
 const userModel = {};
+const crypt = require("../../helpers/v1/bcrypt");
+const dtoMail = require("../../dto/v1/mail/labelsMail");
+const { consumeRateLimit, deleteRateLimit } = require("../../helpers/v1/rateLimiter");
 
 userModel.login = async (userData, callback) => {
   const sql = `
-            SET @user = ?;
-            SET @password = ?;
-            SET @ip = ?;
-            CALL gnv2_p_user_login_validate(@user, @password, @ip, @error, @errMsg, @lastDate, @master, @family);
-            SELECT @error AS error, @errMsg AS errMsg, @lastDate AS lastDate, @master AS master, @family AS family; 
-            `;
+    SET @user = ?;
+    SET @ip = ?;
+    CALL gnv2_p_user_login_validate(@user, @ip, @error, @errMsg, @passproc, @lastDate, @master, @family, @userExist);
+    SELECT @error AS error, @errMsg AS errMsg, @passproc AS passproc, @lastDate AS lastDate, @master AS master, @family AS family, @userExist AS userExist; 
+    `;
     //console.log('query ', sql);
-    const data = {
-      user: userData.k_usuario,
-      ip: userData.d_ip,
-    };
-    
-      const result = await db.query(sql, [
-        userData.k_usuario,
-        userData.d_password,
-        userData.d_ip,
-      ]);
-      result.flat().forEach(e=>{
-        if(e.error!==undefined){
-          data.process = e.error
-          data.message = e.errMsg
-          data.lastDate = e.lastDate
-          data.master = e.master
-          data.family = e.family
+  const data = {
+    user: userData.user,
+    ip: userData.ip,
+  };
+  let password
+  let userExist
+  const result = await db.query(sql, [userData.user, userData.ip]);
+  result.flat().forEach(e=>{
+    if(e.error!==undefined){
+      data.process = e.error
+      data.message = e.errMsg
+      userExist = e.userExist ? true : false
+      if(e.error===0){
+        password = e.passproc;
+        data.lastDate = e.lastDate;
+        data.master = e.master;
+        data.family = e.family;
+      }
+    }
+  })
+  //console.log("DATA PROCEDURE ", data);
+  if (data.process !== 0) {
+    await consumeRateLimit(data.ip, data.user, userExist, 'Log'); //intentos fallidos desde /login 
+    throw new FormError(data).toJson();
+  } else {
+    const validate = await crypt.desencrypt(userData.pass, password);
+    //console.log('Validacion ', validate);
+    if(!validate){
+      await consumeRateLimit(data.ip, data.user, userExist, 'Log'); //intentos fallidos desde /login
+      throw new FormError({
+        process: 1,
+        message: "ERROR DE USUARIO O CONTRASEÑA",
+      }).toJson();
+    }else{
+      console.log("DATA VALIDACION ", data);
+      // GENERACION DE TOKEN
+      const token = jwt.sign(
+        { user: data.user, family: data.family },
+        process.env.KEY_SECRET,
+        {
+          //expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
+          expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
+          //expiresIn: 60, //expiracion del token en sg, 1 minuto
         }
-      })
-      if (data.process !== 0) {
-        //console.log('ERRORES DE VALIDACION DB');
-        throw new FormError(data).toJson();
-       
-      } else {
-        //console.log("DATA VALIDACION ", data);
-        // GENERACION DE TOKEN
-        // creo el json webtoken
-        const token = jwt.sign(
-          { user: data.user, family: data.family },
-          process.env.KEY_SECRET,
-          {
-            //expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
-            expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
-            //expiresIn: 60, //expiracion del token en sg, 1 minuto
-          }
-        );
-        data.token = token;
-        // ACTUALIZACION SESSION CON TOKEN
-        const sqlupdt = `
+      );
+      data.token = token;
+      // ACTUALIZACION SESSION CON TOKEN
+      const sqlupdt = `
         SET @user = ?;
         SET @token = ?;
         SET @ip = ?;
         CALL gnv2_p_user_login_auth(@user, @token, @ip, @flag);
         SELECT @flag AS flag;
-        `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO
+      `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO para detectar en FRONTEND
 
-        const resultUpdt = await db.query(sqlupdt, [
-          data.user,
-          token,
-          data.ip,
-        ]);
-        //console.log("result DBupdate ", resultUpdt);
-        resultUpdt.flat().forEach((e) => {
-          data.flag = e.flag;
-        });
-        console.log('DATA AUTORIZACION ', data);
-        callback(data);
-      }
+      const resultUpdt = await db.query(sqlupdt, [data.user, token, data.ip]);
+      //console.log("result DBupdate ", resultUpdt);
+      resultUpdt.flat().forEach((e) => {
+        data.flag = e.flag;
+      });
+      console.log("DATA AUTORIZACION ", data);
+      await deleteRateLimit(data.ip, data.user, 'Log') //Elimino los intentos fallidos desde /login
+      callback(data);
+    }
+  }
+};
+
+userModel.pass = async (userData, callback) => {
+  const sql = `
+            SET @user = ?;
+            SET @mail = ?;
+            SET @password = ?;
+            SET @ip = ?;
+            CALL gnv2_p_new_pass(@user, @mail, @password, @ip, @error, @errMsg, @userExist);
+            SELECT @error AS error, @errMsg AS errMsg, @userExist AS userExist;
+            `;
+  //console.log("query ", sql);
+  const data = {
+    user: userData.user,
+    mail: userData.mail,
+    ip: userData.ip,
+  };
+  const rndom = crypt.genRand(10);
+  const password = await crypt.encrypt(rndom);
+  let userExist
+  const result = await db.query(sql, [
+    userData.user,
+    userData.mail,
+    password,
+    userData.ip,
+  ]);
+  result.flat().forEach((e) => {
+    if (e.error !== undefined) {
+      data.process = e.error;
+      data.message = e.errMsg;
+      userExist = e.userExist ? true : false;
+    }
+  });
+  //console.log("data process", data, rndom);
+  if (data.process !== 0) {
+    await consumeRateLimit(data.ip, data.user, userExist, "Pas"); // intentos fallidos /login/password
+    throw new FormError(data).toJson();
+  } else {
+    //envio correo
+    const sendMail = await dtoMail.labelMailNewPass(userData.user, userData.mail, userData.ip, rndom);
+    //const sendMail = "";
+    data.idMail = sendMail;
+    await deleteRateLimit(data.ip, data.user, "Pas"); //Elimino los intentos fallidos a /login/password
+    callback(data);
+  }
+  
 };
 
 userModel.logout = async (userOut, callback) => {
@@ -83,97 +138,6 @@ userModel.logout = async (userOut, callback) => {
   callback(result)
 
 };
-
-
-// userModel.login = (userData, next, cb) => {
-//   const sql = `
-//             SET @user = ?;
-//             SET @password = ?;
-//             SET @ip = ?;
-//             CALL gnv2_p_user_login_validate(@user, @password, @ip, @error, @errMsg, @lastDate, @master, @family);
-//             SELECT @error AS error, @errMsg AS errMsg, @lastDate AS lastDate, @master AS master, @family AS family; 
-//             `;
-//   //console.log('query ', sql);
-//   const data = {
-//     user: userData.k_usuario,
-//     ip: userData.d_ip,
-//   };
-  
-//   db.query(
-//     sql,
-//     [
-//       userData.k_usuario,
-//       userData.d_password,
-//       userData.d_ip,
-//     ],
-//     (err, result, fields) => {
-//       if (err) {
-//         //console.log("ERROR QUERY ", err);
-//         cb(err, { status: "ERROR QUERY ", sucess: false });
-       
-//        //throw new Error('ERROR')
-       
-//       } else {
-//         //console.log('result ', result);
-//         result
-//           .flat() // La query trae un arreglo anidado con el resultado de la validacion del procedimiento mysql, con el metodo flat se crea un nuevo arreglo sin anidar
-//           .forEach((e) => {
-//             //recorro el arreglo y completo la data de salida
-//           if (e.error!==undefined) { // no tiene en cuenta los resultados OnPacket
-//               data.process = e.error;
-//               data.message = e.errMsg;//Para que tenga la misma designacion de las clases Error
-//               data.lastDate = e.lastDate;
-//               data.master = e.master;
-//               data.family = e.family;
-//             }
-//           });
-//           // console.log("DATA ", data);
-//           if(data.process!==0){
-//             //cb(null, data);
-//             try {
-//               throw new Error('Error en Validacion');
-//             } catch (error) {
-//                 next(new FormError(data).toJson())
-//             }
-//           }else{
-//             //console.log("DATA VALIDACION ", data);
-//             // GENERACION DE TOKEN
-            
-//             // creo el json webtoken
-//             const token = jwt.sign({ user:data.user, family:data.family }, process.env.KEY_SECRET, {
-//               //expiresIn: 60 * 24 * 24, //expiracion del token en sg
-//               expiresIn: 60 * 60, //expiracion del token en sg
-//             });
-//             console.log('TOKEN ', token.length);
-//             data.token = token;
-
-//             // ACTUALIZACION SESSION CON TOKEN 
-//             const sqlupdt = `
-//             SET @user = ?;
-//             SET @token = ?;
-//             SET @ip = ?;
-//             CALL gnv2_p_user_login_auth(@user, @token, @ip, @flag);
-//             SELECT @flag AS flag; 
-//             `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO
-//             db.query(sqlupdt,[data.user, token, data.d_ip], (errUpdt, resultUpdt, fields) => {
-//               if (errUpdt){
-//                // console.log("ERROR QUERYUPDATE ", errUpdt);
-//                 cb(err, { status: "ERROR QUERYUPDATE ", sucess: false });
-               
-//               }else{
-//                 // DATA RESPUESTA AUTENTICACION
-//                 resultUpdt.flat().forEach((e) => {data.flag=e.flag})
-//                 //console.log('DATA AUTORIZACION ', data);
-//                 cb(null, data);
-//               }
-//             })
-//           }
-//       }
-//     }
-//   );
-// };
-
-
 
 
 

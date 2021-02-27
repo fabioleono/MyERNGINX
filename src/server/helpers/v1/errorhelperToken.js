@@ -26,7 +26,7 @@ const errorHelperToken = (callback) => {
       } else { // Errores por BD (profile.js) y envio de mails(verifyToken.js)
         return res.status(500).json({
           name: "Server error",
-          messagge: "Something Went Wrong HT",
+          message: "Something Went Wrong HT",
         });
       }
     }

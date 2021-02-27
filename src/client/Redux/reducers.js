@@ -2,6 +2,7 @@ import {
   GET_USER,
   GET_PROFILE,
   GET_ALL_WORKSHOPS,
+  GET_ALL_TECHNICALS,
 } from "./actions";
 
 export const userReducer = (state={}, action) => {
@@ -31,6 +32,16 @@ export const workshopReducer = (state = {}, action) => {
       ...state,
       workshops: action.workshops
     }
+  }
+  return state;
+};
+
+export const technicalReducer = (state = {}, action) => {
+  if (action.type === GET_ALL_TECHNICALS) {
+    return {
+      ...state,
+      technicals: action.technicals,
+    };
   }
   return state;
 };

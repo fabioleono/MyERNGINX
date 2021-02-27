@@ -13,8 +13,8 @@ modelProfile.verifyUser = async (user, callback) => {
             SELECT k_usuario AS user, d_session AS session  from gnv_t_usuario  WHERE k_usuario=${db.escape(user)} AND n_estado='0' `;
   //  console.log(sql);
   const result = await db.query(sql)
-  const data = Object.values(JSON.parse(JSON.stringify(result)));
-  callback(data)
+  //const data = JSON.parse(JSON.stringify(result)); // Quita el dataRowPacket que envia MySql
+  callback(result)
 };
 
 module.exports = modelProfile

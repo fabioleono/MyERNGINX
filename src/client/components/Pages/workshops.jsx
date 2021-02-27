@@ -7,6 +7,10 @@ import { useEffect } from "react";
 
 const Workshops = ({ location, workshops }) => {
   console.log('LOCATION TALLERES', location);
+  if(workshops){
+  console.log("DATAS ", workshops.hasOwnProperty('status'));
+  }
+  
   useEffect(() => {
     const { master, pathname } = location;
     const familyProfile = pathname.split("/")[1];
@@ -18,7 +22,7 @@ const Workshops = ({ location, workshops }) => {
 
   return (
     <>
-      {workshops && (
+      {/* {workshops && (
         <div>
           <h1>Talleres GNV</h1>
           <h3>Info Talleres</h3>
@@ -61,7 +65,9 @@ const Workshops = ({ location, workshops }) => {
           </p>
           <p>{JSON.stringify(workshops)}</p>
         </div>
-      )}
+      )} */}
+      
+      <p>{JSON.stringify(workshops)}</p>
     </>
   );
 }

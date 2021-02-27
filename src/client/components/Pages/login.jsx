@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { store } from "../../Redux/store";
 import { getUser } from "../../Redux/actionCreators";
 import { logOutSession } from "../Molecules/logOut";
+
 
 const Login = () => {
   const auth = (e) => {
@@ -37,7 +39,7 @@ const Login = () => {
       }
     })
     .catch((error) => {
-      console.log("ERROR RESPONSE ", error.response);
+     console.log("ERROR RESPONSE ", error.response);
 
       const { process, message, path } = error.response.data;
       Array.from(window.document.getElementsByClassName("msg_alert")).map(
@@ -45,24 +47,32 @@ const Login = () => {
       );
       //validacion en el Backend: YUP y RequRateLimit
       if (error.response.status === 429)
-        return (window.document.getElementById("msg_form").innerHTML =
-          error.response.data);
-
-      // Cambiar el switch por un if elseif- Mejor rendimiento
-      switch (process) {
-        case 3: //determinado en el procedimiento.Session Abierta
-          setStateLog(process);
-          break;
-        case 0:
-          window.document.getElementById(`msg_${path}`).innerHTML = message;
-          break;
-        case 1:
-          window.document.getElementById("msg_form").innerHTML = message;
-          break;
-
-        default:
-          break;
+        return (window.document.getElementById("msg_form").innerHTML = message);
+      //  if elseif- Mejor rendimiento que un switch
+      if (process === 3) {
+        setStateLog(process);
+      }else if (process === 0) {
+        window.document.getElementById(`msg_${path}`).innerHTML = message;
+      } else if (process === 1) {
+        window.document.getElementById("msg_form").innerHTML = message;
+      } else {
+        window.document.getElementById("msg_form").innerHTML =
+          "ALGO FUE MAL....";
       }
+      // switch (process) {
+      //   case 3: //determinado en el procedimiento.Session Abierta
+      //     setStateLog(process);
+      //     break;
+      //   case 0:
+      //     window.document.getElementById(`msg_${path}`).innerHTML = message;
+      //     break;
+      //   case 1:
+      //     window.document.getElementById("msg_form").innerHTML = message;
+      //     break;
+
+      //   default:
+      //     break;
+      // }
     });
   };
 
@@ -76,37 +86,44 @@ const Login = () => {
       <h1>Login Certificadores</h1>
 
       {!stateLog ? (
-        <form id="formulario" onSubmit={auth.bind()}>
+        <div>
+          <form id="formulario" onSubmit={auth.bind()}>
+            <p>
+              <label htmlFor="user">
+                Usuario
+                <input
+                  type="text"
+                  name="user"
+                  id="user"
+                  placeholder="Ingrese su usuario"
+                  autoFocus
+                />
+              </label>
+            </p>
+            <span id="msg_user" className="msg_alert"></span>
+            <p>
+              <label htmlFor="pass">
+                Contraseña
+                <input
+                  type="password"
+                  name="pass"
+                  id="pass"
+                  placeholder="Ingrese su Contraseña"
+                />
+              </label>
+            </p>
+            <span id="msg_pass" className="msg_alert"></span>
+            <p>
+              <input type="submit" value="Enviar" />
+            </p>
+            <p id="msg_form" className="msg_alert"></p>
+          </form>
           <p>
-            <label htmlFor="user">
-              Usuario
-              <input
-                type="text"
-                name="user"
-                id="user"
-                placeholder="Ingrese su usuario"
-                autoFocus
-              />
-            </label>
+            <NavLink to="/login/password" exact>
+              Renovar Contraseña
+            </NavLink>
           </p>
-          <span id="msg_user" className="msg_alert"></span>
-          <p>
-            <label htmlFor="pass">
-              Contraseña
-              <input
-                type="password"
-                name="pass"
-                id="pass"
-                placeholder="Ingrese su Contraseña"
-              />
-            </label>
-          </p>
-          <span id="msg_pass" className="msg_alert"></span>
-          <p>
-            <input type="submit" value="Enviar" />
-          </p>
-          <p id="msg_form" className="msg_alert"></p>
-        </form>
+        </div>
       ) : (
         <div>
           <Session user={stateUser} />

@@ -4,10 +4,9 @@ const morgan = require('morgan');
 const cors = require('cors')
 const helmet = require('helmet')
 const bodyParser = require('body-parser');
-const rateLimit = require('express-rate-limit')
+const rateLimiterApi = require('../middlewares/v1/rateLimitApi')
 const compression = require('compression')
 const errorMiddleware = require("../middlewares/v1/errorMiddleware");
-
 
 const app = express()
 
@@ -19,7 +18,6 @@ app.set("port", process.env.PORT || 5000);
 
 //comprimir todas las respuestas HTTP
 app.use(compression())
-
 
 // lOGS
 const pino = require('pino')
@@ -39,6 +37,8 @@ const expressPino = require("express-pino-logger")({
   logger: logger,
 });
 app.use(expressPino);
+
+
 //logger.info("LOGGER BASICO7");
 let logrotate = require("logrotator");
 // use the global rotator
@@ -99,15 +99,10 @@ app.use(
       upgradeInsecureRequests: [],
     },
   })
+  //,helmet.referrerPolicy({ policy: "no-referrer" })
 );
 //app.use(favicon(path.join(__dirname, "../", "public/images/favicon.png")));
 
-// LIMITADOR DE SOLICITUDES
-const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: process.env.REQ_PER_MINUTE || 30, // Numero de salicitudes a la API X IP
-  message: process.env.REACT_APP_MSG_REQ_PER_MINUTE
-});
 
 //limitacion de json recibidos en el body
 app.use(bodyParser.json({ limit: '50kb' })); //100kb por defecto
@@ -129,14 +124,17 @@ if (process.env.NODE_ENV === "development") {
     morgan(
       ":method || :url || :status || :remote-addr || :remote-user || :req[header] || :referrer || :res[header] || :response-time"
     )
-  );
+  );  
   app.use(cors()); // solo permitido el acceso a cors en peticiones en ambiente de desarrollo
 } 
+
+// LIMITADOR DE SOLICITUDES
+app.use(rateLimiterApi)
 
 // ROUTES
 const version = process.env.API_VERSION
 const api = `${process.env.API}${version}`
-app.use(`${api}`, apiLimiter); // limitador de Solicitudes
+//app.use(`${api}`, apiLimiter); // limitador de Solicitudes
 
 app.use(api, require(`../routes${version}/authentication`)); //rutas de Autenticacion y Login 
 app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticacion y login Usuario Info Publica
@@ -176,9 +174,6 @@ require("../routes/v1/react").map((e) => {
 // Dentro del arreglo de react va una ruta al resto *. Con ella renderiza el componente de REACT error 404 ruta no encontrada
 
 app.use(errorMiddleware)
-
-
-
 
 module.exports = app
 
