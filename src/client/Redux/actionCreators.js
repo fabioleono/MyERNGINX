@@ -4,7 +4,7 @@ const url = process.env.REACT_APP_API_URL;
 const code = process.env.REACT_APP_MSG_REQ_PER_MINUTE;
 
 export const getUser = (user, family) => (dispatch) => {
-  console.log("DISPATCH GET USER ....");
+  //console.log("DISPATCH GET USER ....");
   return dispatch({
     type: GET_USER,
     user: user,
@@ -13,7 +13,7 @@ export const getUser = (user, family) => (dispatch) => {
 };
 
 export const getProfile = (family) => (dispatch) => {
-  console.log("DISPATCH PROFILE ....");
+  //console.log("DISPATCH PROFILE ....");
 
   axios
     .get(`${url}/${family}`, {
@@ -22,14 +22,14 @@ export const getProfile = (family) => (dispatch) => {
       },
     })
     .then((res) => {
-      console.log("DATA DISPATCH PROFILE", res.data);
+      //console.log("DATA DISPATCH PROFILE", res.data);
       return dispatch({
         type: GET_PROFILE,
         profile: res.data,
       });
     })
     .catch((error) => {
-      console.log("ERROR DISPATCH PROFILE ", error.response.data);
+      //console.log("ERROR DISPATCH PROFILE ", error.response.data);
 
       const { data, status } = error.response;
       if (data === code && status === 429) {
@@ -45,10 +45,10 @@ export const getProfile = (family) => (dispatch) => {
           family: "",
         });
 
-        console.log("SET REDUX ");
+        //console.log("SET REDUX ");
         localStorage.removeItem("token");
         localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-        console.log("SET TOKENS ");
+        //console.log("SET TOKENS ");
         return (window.location = `/error?error=${status}`);
       }
     });
@@ -63,13 +63,13 @@ export const getWorkshops = (master, family) => async (dispatch) => {
         "x-access-token": localStorage.getItem("token"),
       },
     });
-    console.log("DATA DISPATCH TALLERES ", res.data);
+    //console.log("DATA DISPATCH TALLERES ", res.data);
     return dispatch({
       type: GET_ALL_WORKSHOPS,
       workshops: res.data,
     });
   } catch (error) {
-    console.log("ERROR DISPATCH TALLERES ", error.response);
+    //console.log("ERROR DISPATCH TALLERES ", error.response);
 
     const { data, status } = error.response;
     if (data === code && status === 429) {
@@ -84,10 +84,10 @@ export const getWorkshops = (master, family) => async (dispatch) => {
         user: "",
         family: "",
       });
-      console.log("SET REDUX ");
+      //console.log("SET REDUX ");
       localStorage.removeItem("token");
       localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-      console.log("SET TOKENS ");
+      //console.log("SET TOKENS ");
       return (window.location = `/error?error=${status}`);
     }
   }

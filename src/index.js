@@ -8,7 +8,7 @@ import App from "./client/components/App";
 import { store, persistor } from "./client/Redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import "./styles/styles.scss";
-import "./styles/app.css";
+// import "../public/css/styles.css";
 
 //console.log('env', process.env);
 

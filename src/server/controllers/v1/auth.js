@@ -3,27 +3,64 @@ const errorHelperCtrl = require('../../helpers/v1/errorhelperCtrl');
 //const { delRateLimit } = require("./rateLimiter");
 const ctrlAuth = {};
 const FormError = require("../../error/v1/formValidatedError");
-
+const svgCaptcha = require("svg-captcha");
 
 ctrlAuth.login = errorHelperCtrl(async (req, res) => {
-  const { user, pass } = req.body;
   const ip = req.header("X-Forwarded-For") || req.ip;
-  const userData = {
-    user,
-    pass,
-    ip,
-  };
+  const { user, pass, captcha } = req.body;
+  const captLogin = req.captLogin;
+  console.log('VALIDATE CAPTCHA ', captLogin, captcha, (captLogin===captcha));
+  if (captLogin !== captcha){
+    throw new FormError({
+      process: 1,
+      message: "CODIGO DE VERIFICACION INCORRECTO ",
+    }).toJson();
+  }
+    const userData = {
+      user,
+      pass,
+      ip,
+    };
     
   await userModel.login(userData, (data) => {
-    //delRateLimit(ip, user)
     req.log.warn(`LogIn WEB-> usuario:${user} ip:${ip}`)
     res.status(200).json(data);
   });
 });
 
+ctrlAuth.captcha = (req, res) =>{
+  const conf = {
+    size: 6,
+    ignoreChars: "0Oo1il", // filter out some characters like 0o1i
+    noise: 3, // number of noise lines
+    color: false, // characters will have distinct colors instead of grey, true if background option is set
+    // background: "#fff", // background color of the svg image
+    width: 230, // width of captcha
+    height: 70, // height of captcha
+    fontSize: 60, // captcha text size
+    //charPreset: "string", // random character preset,
+  };
+  var captcha = svgCaptcha.create(conf);
+  
+  res.type("svg");
+  //console.log("original--> ", captcha.text);
+  req.app.locals.captLogin = captcha.text;
+  res.status(200).send(captcha.data);
+}
+
 ctrlAuth.pass = errorHelperCtrl(async (req, res) => {
-  const { user, mail } = req.body;
+  //const slow = req.slowDown;
+  //console.log('limitador velocidad newPass', slow)
+  const { user, mail, captcha } = req.body;
   const ip = req.header("X-Forwarded-For") || req.ip;
+  const captLogin = req.captLogin;
+  console.log("VALIDATE CAPTCHA ", captLogin, captcha, captLogin === captcha);
+  if (captLogin !== captcha) {
+    throw new FormError({
+      process: 1,
+      message: "CODIGO DE VERIFICACION INCORRECTO ",
+    }).toJson();
+  }
   const userData = {
     user,
     mail,
@@ -39,7 +76,7 @@ ctrlAuth.pass = errorHelperCtrl(async (req, res) => {
         message: "EN ESTE MOMENTO NO PODEMOS RECUPERAR LA CONTRASEÑA ",
       }).toJson();
     } else {
-      req.log.warn(`Recover Password WEB-> usuario:${user} correo:${mail} ip:${ip} idMail:${data.idMail}`);
+      req.log.warn(`Recover Password WEB-> usuario:${user} ip:${ip} correo:${mail} idMail:${data.idMail}`);
       res.status(200).json(data);
     }
     

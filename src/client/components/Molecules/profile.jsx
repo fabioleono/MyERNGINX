@@ -19,7 +19,7 @@ const show_profile = () => {
 
 const Profile = ({ user, family, profile }) => {
   let menu;
-  console.log("ENTRA AL PROFILE ", profile);
+  //console.log("ENTRA AL PROFILE ", profile);
 
   if (profile) {
     // despues que termina de cargar el perfil del usuario (dispatch en href = /familia)

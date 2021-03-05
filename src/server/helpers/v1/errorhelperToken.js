@@ -4,10 +4,11 @@ const errorHelperToken = (callback) => {
       await callback(req, res, next);
     } catch (error) {
       //console.log("Error Helper Token ", error);
-      req.log.error(`ERROR HELPER TOKEN : ${error}`);
-      for (const e in error) {
-        req.log.error(`${e}: ${error[e]}`);
-      }
+      // req.log.error(`ERROR HELPER TOKEN : ${error}`);
+      // for (const e in error) {
+      //   req.log.error(`${e}: ${error[e]}`);
+      // }
+      req.log.error(`Error HelperToken: ${JSON.stringify(error)}`);
       const { name, status, message } = error 
       if (
         name === "JsonWebTokenError" ||

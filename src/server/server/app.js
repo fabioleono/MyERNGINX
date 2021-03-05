@@ -41,6 +41,7 @@ app.use(expressPino);
 
 //logger.info("LOGGER BASICO7");
 let logrotate = require("logrotator");
+const captcha = require("../middlewares/v1/captchaStore");
 // use the global rotator
 let rotator = logrotate.rotator;
 // check file rotation every 5 minutes, and rotate the file if its size exceeds 1 mb.
@@ -62,7 +63,7 @@ rotator.on("rotate", function (file) {
 });
 
 // Cuando usamos un proxy por encima de node.js, simplemente tendremos que asegurarnos de identificarlo como proxy de confianza para que la dirección del cliente sea la correcta y no la del propio proxy. Es necesario configurar la cabecera (proxy_set_header  X-Forwarded-For  $remote_addr;) a nginx en sus archivos de sites-available
-//app.set("trust proxy", true);
+app.set("trust proxy", true);
 
 //SECURITY
 // helmet setea algunas de las cabeceras de las peticiones Y... 
@@ -85,15 +86,15 @@ app.use(
     directives: {
       defaultSrc: [
         "'self'",
-        "https://fonts.googleapis.com/",
-        "https://fonts.gstatic.com/",
+        //"https://fonts.googleapis.com/",
+        //"https://fonts.gstatic.com/",
       ],
       scriptSrc: [
         "'self'",
-        "'sha256-s1eR4HA1RGXCCWhJqz18kkFqCQ4RBNXjAPyvQ2lQtrU='",
+        //"'sha256-s1eR4HA1RGXCCWhJqz18kkFqCQ4RBNXjAPyvQ2lQtrU='",
         "'sha256-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
-        "'sha256-4Su6mBWzEIFnH4pAGMOuaeBrstwJN4Z3pq/s1Kn4/KQ='",
-        "'nonce-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
+        // "'sha256-4Su6mBWzEIFnH4pAGMOuaeBrstwJN4Z3pq/s1Kn4/KQ='",
+        // "'nonce-bnYo6LV6hM3rTnXS2OK00COE/ojZZnVwLLUMaPjJt20='",
       ],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
@@ -128,6 +129,9 @@ if (process.env.NODE_ENV === "development") {
   app.use(cors()); // solo permitido el acceso a cors en peticiones en ambiente de desarrollo
 } 
 
+
+// ALmacenador de Captcha
+app.use(captcha)
 // LIMITADOR DE SOLICITUDES
 app.use(rateLimiterApi)
 

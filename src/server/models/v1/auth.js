@@ -7,78 +7,91 @@ const dtoMail = require("../../dto/v1/mail/labelsMail");
 const { consumeRateLimit, deleteRateLimit } = require("../../helpers/v1/rateLimiter");
 
 userModel.login = async (userData, callback) => {
-  const sql = `
-    SET @user = ?;
-    SET @ip = ?;
-    CALL gnv2_p_user_login_validate(@user, @ip, @error, @errMsg, @passproc, @lastDate, @master, @family, @userExist);
-    SELECT @error AS error, @errMsg AS errMsg, @passproc AS passproc, @lastDate AS lastDate, @master AS master, @family AS family, @userExist AS userExist; 
-    `;
-    //console.log('query ', sql);
   const data = {
     user: userData.user,
     ip: userData.ip,
   };
-  let password
-  let userExist
+  let password;
+  let userExist;
+  const sql = `
+    SET @user = ?;
+    CALL gnv2_p_user_login_validate(@user, @error, @errMsg, @passproc, @maestro, @family, @userExist);
+    SELECT @error AS error, @errMsg AS errMsg, @passproc AS passproc, @maestro AS maestro, @family AS family, @userExist AS userExist; 
+    `;
+  //console.log('query ', sql);
   const result = await db.query(sql, [userData.user, userData.ip]);
-  result.flat().forEach(e=>{
-    if(e.error!==undefined){
-      data.process = e.error
-      data.message = e.errMsg
-      userExist = e.userExist ? true : false
-      if(e.error===0){
-        password = e.passproc;
-        data.lastDate = e.lastDate;
-        data.master = e.master;
+  result.flat().forEach((e) => {
+    if (e.error !== undefined) {
+      data.process = e.error;
+      data.message = e.errMsg;
+      userExist = e.userExist ? true : false;
+      password = e.passproc;
+      if(e.error===0){ 
+        data.master = e.maestro; 
         data.family = e.family;
       }
     }
-  })
-  //console.log("DATA PROCEDURE ", data);
-  if (data.process !== 0) {
-    await consumeRateLimit(data.ip, data.user, userExist, 'Log'); //intentos fallidos desde /login 
-    throw new FormError(data).toJson();
-  } else {
-    const validate = await crypt.desencrypt(userData.pass, password);
-    //console.log('Validacion ', validate);
-    if(!validate){
-      await consumeRateLimit(data.ip, data.user, userExist, 'Log'); //intentos fallidos desde /login
-      throw new FormError({
-        process: 1,
-        message: "ERROR DE USUARIO O CONTRASEÑA",
-      }).toJson();
-    }else{
-      console.log("DATA VALIDACION ", data);
-      // GENERACION DE TOKEN
-      const token = jwt.sign(
-        { user: data.user, family: data.family },
-        process.env.KEY_SECRET,
-        {
-          //expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
-          expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
-          //expiresIn: 60, //expiracion del token en sg, 1 minuto
-        }
-      );
-      data.token = token;
-      // ACTUALIZACION SESSION CON TOKEN
-      const sqlupdt = `
-        SET @user = ?;
-        SET @token = ?;
-        SET @ip = ?;
-        CALL gnv2_p_user_login_auth(@user, @token, @ip, @flag);
-        SELECT @flag AS flag;
-      `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO para detectar en FRONTEND
+  });
 
-      const resultUpdt = await db.query(sqlupdt, [data.user, token, data.ip]);
-      //console.log("result DBupdate ", resultUpdt);
-      resultUpdt.flat().forEach((e) => {
-        data.flag = e.flag;
-      });
-      console.log("DATA AUTORIZACION ", data);
-      await deleteRateLimit(data.ip, data.user, 'Log') //Elimino los intentos fallidos desde /login
-      callback(data);
-    }
+  if (!userExist) {// usuario no existe
+    await consumeRateLimit(data.ip, data.user, userExist, 'Log'); //intentos fallidos desde /login
+    throw new FormError(data).toJson();
   }
+  if(data.process === 2){ //Cambio de version
+    await consumeRateLimit(data.ip, data.user, userExist, 'Log');
+    throw new FormError(data).toJson();
+  }
+  const validate = await crypt.desencrypt(userData.pass, password);
+  if (!validate) { // password invalida
+    await consumeRateLimit(data.ip, data.user, userExist, 'Log');
+    throw new FormError({
+      process: 1,
+      message: "ERROR DE USUARIO O CONTRASEÑA",
+    }).toJson();
+  }
+  if (data.process === 1 || data.process === 3) {// password valida con usuario limitado
+    await consumeRateLimit(data.ip, data.user, userExist, 'Log');
+    throw new FormError(data).toJson();
+  }
+  //GENERACION DE TOKEN
+  const token = jwt.sign(
+    { user: data.user, family: data.family },
+    process.env.KEY_SECRET,
+    {
+      //expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
+      expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
+      //expiresIn: 60, //expiracion del token en sg, 1 minuto
+    }
+  );
+  data.token = token;
+  // ACTUALIZACION SESSION CON TOKEN Y VALIDACION FECHAS
+  const sqlupdt = `
+    SET @user = ?;
+    SET @token = ?;
+    SET @ip = ?;
+    CALL gnv2_p_user_login_auth(@user, @token, @ip, @error, @errMsg, @last_date, @flag);
+    SELECT @error AS error, @errMsg AS errMsg, @last_date AS last_date, @flag AS flag;
+  `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO para detectar en FRONTEND
+
+  const resultUpdt = await db.query(sqlupdt, [data.user, token, data.ip]);
+  resultUpdt.flat().forEach(e=>{
+    if(e.error!==undefined){
+      data.process = e.error
+      data.message = e.errMsg
+      if(e.error===0){
+        data.lastDate = e.last_date;
+        data.flag = e.flag;
+      }
+    }
+  })
+  if (data.process !== 0) {
+    await consumeRateLimit(data.ip, data.user, userExist, "Log");
+    throw new FormError(data).toJson();
+  }
+  console.log("DATA AUTORIZACION ", data);
+  await deleteRateLimit(data.ip, data.user, "Log"); //Elimino los intentos fallidos desde /login
+  callback(data);
+
 };
 
 userModel.pass = async (userData, callback) => {

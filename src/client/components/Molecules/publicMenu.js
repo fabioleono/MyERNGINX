@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 const PublicMenu = () => {
-  console.log('PUBLIC MENU');
+  //console.log('PUBLIC MENU');
   
   
   return (

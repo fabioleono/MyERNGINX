@@ -3,16 +3,16 @@ class RateLimitError extends Error {
     //console.log('ERROR CLASE RATE LIMIT ', error);
     super()
     this.name = error.name;
-    this.status = error.status
-    this.message = error.message
+    this.status = error.status;
+    this.message = error.message;
 }
 
   toJson(){
-    return{
+    return {
       name: this.name,
       status: this.status,
       message: this.message,
-    }
+    };
   }
   
   

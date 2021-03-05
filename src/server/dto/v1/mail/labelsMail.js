@@ -42,11 +42,12 @@ const labelMailNewPass = async (user, mail, ip, pass) => {
 };
 
 const labelMailBlock = async (data) => {
-  const receiver = ["lramos@enable.com.co", "soporte@enable.com.co"];
+  const receiver = ["lramos@enable.com.co"];
+  //const receiver = ["lramos@enable.com.co", "soporte@enable.com.co"];
   
   let subject, endpoint
   (data.type === 'ip') ? subject = `a la IP ` : subject = `al Usuario `;
-  if(data.prefix==='Log') endpoint = "/login/"; else if(data.prefix === "Pas") endpoint = "/login/password"; else endpoint = "/";
+  if(data.prefix==='Log') endpoint = "api/login/"; else if(data.prefix === "Pas") endpoint = "api/login/password"; else endpoint = "api/";
     const header = {
     from: `" Enable Technologies ${process.env.MAIL_HOST} 👻" <${process.env.MAIL_USER}>`,
     to: receiver.toString(), // si viene de un arreglo con varios correos

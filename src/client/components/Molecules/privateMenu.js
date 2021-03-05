@@ -7,7 +7,7 @@ const PrivateMenu = ( { family } ) => {
 // console.log('location ', location);
 // console.log('match ', match);
 
- console.log('PRIVATE MENU  ', family);
+ //console.log('PRIVATE MENU  ', family);
 
 
   return (

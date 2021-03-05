@@ -5,7 +5,7 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import thunk from "redux-thunk";
 import { userReducer, profileReducer, workshopReducer, technicalReducer } from "./reducers";
 //import rootReducer from "./reducers"; // Root reducer
-console.log('PERSISTE');
+//console.log('PERSISTE');
 
 const persistConfig = {
   // configuration object for redux-persist

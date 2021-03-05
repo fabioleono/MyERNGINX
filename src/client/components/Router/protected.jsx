@@ -3,8 +3,8 @@ import { logOutSession } from "../Molecules/logOut";
 
 import { Redirect, Route,} from 'react-router-dom'
 const Protected = ({ component: Component, ...others }) => { // recibo el alias de component
-   console.log('COMPONENTE protected.jsx ', Component);
-   console.log('OTROS  protected.jsx', others, 'PATH--> ', others.path );
+   //console.log('COMPONENTE protected.jsx ', Component);
+   //console.log('OTROS  protected.jsx', others, 'PATH--> ', others.path );
    const user = others.location.user;
   
   if(localStorage.getItem("token")) return (

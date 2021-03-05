@@ -1,5 +1,5 @@
 require('dotenv').config() // trae las variables del archivo .env de la raiz
-console.log('Entorno ', process.env.NODE_ENV);
+//console.log('Entorno ', process.env.NODE_ENV);
 
 const app = require('./server/app')
 

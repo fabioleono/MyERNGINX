@@ -5,6 +5,8 @@ const ctrl = {} // creo el objeto controlador
 // creo las funciones para ese controlador
 
 ctrl.profile = errorHelperCtrl(async(req, res) => {
+  const slow = req.slowDown;
+  console.log('limitador velocidad profile', slow)
   const user = req.userId;
   //console.log("PROFILE RRL ", req.rateLimit, ' usuario ', user);
   await modelProfile.menu(user, (data) => {

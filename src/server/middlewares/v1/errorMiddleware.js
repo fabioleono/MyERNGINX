@@ -1,9 +1,13 @@
 const apiError = (error, req, res, next) => {
   //console.log('Error Middleware ', error);
-  req.log.error(`ERROR MIDDLEWARE: ${error}`);
-  for (const e in error) {
-    req.log.error(`${e}: ${error[e]}`);
-  }
+  // req.log.error(`ERROR MIDDLEWARE: ${error}`);
+  // for (const e in error) {
+  //   req.log.error(`${e}: ${error[e]}`);
+  // }
+  // console.log('TIPO', typeof(error));
+  // console.log("json ", error.toString());
+  req.log.error(`ERROR MIDDLEWARE: ${error.toString()}`);
+  req.log.error(`ERROR MIDDLEWARE: ${JSON.stringify(error)}`);
   const { name, status }= error
   // console.log('name Error', name);
   //  console.log('status Error', status);
