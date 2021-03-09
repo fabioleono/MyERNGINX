@@ -3,9 +3,9 @@
 const captcha = async (req, res, next) => {
   //console.log('Captcha /login ', req.app.locals.captLogin );
   
-  req.captLogin = req.app.locals.captLogin;
+  req.captchaPrivate = req.app.locals.captchaPrivate;
   
-      next();
+  next();
     
 }
 module.exports = captcha

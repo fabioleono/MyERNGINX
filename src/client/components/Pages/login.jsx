@@ -61,9 +61,9 @@ const Login = () => {
         Array.from(window.document.getElementsByClassName("msg_alert")).map(
           (e) => (e.innerHTML = "")
         );
-        // window.document.getElementById("user").value = "";
-        // window.document.getElementById("pass").value = "";
-        // window.document.getElementById("captcha").value = "";
+        window.document.getElementById("user").value = "";
+        window.document.getElementById("pass").value = "";
+        window.document.getElementById("captcha").value = "";
         window.document.getElementById("icLoad").style.display = "none";
         window.document.getElementById("btnSnd").style.display = "block";
         window.document.getElementById("lnkNewPass").style.display = "block";
@@ -117,8 +117,8 @@ const Login = () => {
               </label>
             </p>
             <span id="msg_pass" className="msg_alert"></span>
-            <p id="svgId"></p>
-            <p>
+            <p id="svgId" className="p_captcha"></p>
+            <p className="p_ver_captcha">
               <label htmlFor="captcha">
                 Cod Verificación
                 <input
@@ -130,7 +130,6 @@ const Login = () => {
               </label>
             </p>
             <span id="msg_captcha" className="msg_alert"></span>
-
             <p>
               <input id="btnSnd" type="submit" value="Enviar" />
               <img

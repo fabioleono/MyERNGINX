@@ -5,8 +5,8 @@ const getAsync = promisify(redisClient.get).bind(redisClient);
 const caching = async (req, res, next) => {
   console.log("MIDDLEWARE CACHING query:", req.query, " params:", req.params);
   // console.log("MIDDLEWARE VALIDATE CACHE ");
-  const master = req.query.master;
-  const id = req.params.id;
+  //const master = req.query.master;
+  //const id = req.params.id;
 
   try {
     const cachedData = await getAsync("algo2");

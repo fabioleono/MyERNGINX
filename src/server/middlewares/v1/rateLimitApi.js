@@ -1,10 +1,12 @@
-const { attempts, limiterByIp, limiterByIpFt, limiterByIpMetric, limiterByIpLog, limiterByIpPas, convertMS } = require('../../helpers/v1/rateLimiter')
+const { attempts, limiterByIp, limiterByIpFt, limiterByIpMetric, limiterByIpLog, limiterByIpPas, convertMS, limiterByIpUserLog, limiterByUserLog, limiterByIpUserPas, limiterByUserPas } = require('../../helpers/v1/rateLimiter')
 const RateLimitError = require('../../error/v1/rateLimitError');
 const dtoMail = require('../../dto/v1/mail/labelsMail')
 
 const rateLimiterApi = async (req, res, next) => {
   const ip = req.header("X-Forwarded-For") || req.ip;
-  //console.log('MIDDLEWARE RATE LIMIT API ');
+  const user = req.body.user
+    
+  console.log('MIDDLEWARE RATE LIMIT API ');
   
   const dataReject = {
     name: "Rate Limit Error",
@@ -13,17 +15,35 @@ const rateLimiterApi = async (req, res, next) => {
   };
 
   try {
-    const [blockIpLog, blockIpPas] = await Promise.all([
+      const [blockIpLog, blockIpPas, blockIpUserLog, blockIpUserPas, blockUserLog, blockUserPas] = await Promise.all([
       limiterByIpLog.get(ip), // Bloqueos por ip en /login
       limiterByIpPas.get(ip), // Bloqueos por ip en /login/password
+      limiterByIpUserLog.get(`${ip}_${user}`),
+      limiterByIpUserPas.get(`${ip}_${user}`),
+      limiterByUserLog.get(user),
+      limiterByUserPas.get(user), 
     ]);
         
-    if (
-      (blockIpLog !== null && blockIpLog.consumedPoints > attempts.ByIpLog) ||
-      (blockIpPas !== null && blockIpPas.consumedPoints > attempts.ByIpPas)
-    ) {
+    if (blockIpLog !== null && blockIpLog.consumedPoints > attempts.ByIpLog) {
+      dataReject.message = `El acceso ha sido bloqueado 101 `
+      next(new RateLimitError(dataReject).toJson());
+     }else if(blockIpPas !== null && blockIpPas.consumedPoints > attempts.ByIpPas){ 
+      dataReject.message = `El acceso ha sido bloqueado 102 `;
+      next(new RateLimitError(dataReject).toJson());
+     }else if (blockIpUserLog !== null && blockIpUserLog.consumedPoints > attempts.ByIpUserLog){
+      dataReject.message = `El acceso ha sido bloqueado 103 `;
+      next(new RateLimitError(dataReject).toJson());
+    } else if (blockIpUserPas !== null && blockIpUserPas.consumedPoints > attempts.ByIpUserPas){
+      dataReject.message = `El acceso ha sido bloqueado 104 `;
+      next(new RateLimitError(dataReject).toJson());
+    }else if (blockUserLog !== null && blockUserLog.consumedPoints > attempts.ByUserLog){
+      dataReject.message = `El acceso ha sido bloqueado 105 `;
+      next(new RateLimitError(dataReject).toJson());
+    }else if (blockUserPas !== null && blockUserPas.consumedPoints > attempts.ByUserPas){
+      dataReject.message = `El acceso ha sido bloqueado 106 `;
       next(new RateLimitError(dataReject).toJson());
     } else {
+            
       const limiterPromises = [];
       limiterPromises.push(limiterByIp.consume(ip)); // bloqueo en Memoria (inmemoryBlockOnConsumed) y redis, despues que la solicitud supera los puntos permitidos el metodo .consume() NO incrementa
       limiterPromises.push(limiterByIpFt.consume(ip)); // bloqueo en Redis, despues que la solicitud supera los puntos permitidos el metodo .consume() incrementa
@@ -51,13 +71,14 @@ const rateLimiterApi = async (req, res, next) => {
         }
       }
       next();
-    }  
+     }  
+     
   } catch (reject) {
       if (reject instanceof Error) {
         req.log.error(`ERROR REDIS RateLimitApi Middleware: ${Error(reject)}`);
         next();
       } else {
-        // console.log("reject rateLimiterAPI", reject);
+        console.log("reject rateLimiterAPI", reject);
         // throw new RateLimitError(dataReject).toJson();
         next(new RateLimitError(dataReject).toJson());
       }

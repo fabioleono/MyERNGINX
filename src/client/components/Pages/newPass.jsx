@@ -47,9 +47,9 @@ const NewPass = () => {
       Array.from(window.document.getElementsByClassName("msg_alert")).map(
         (e) => (e.innerHTML = "")
       );
-      // window.document.getElementById("user").value = "";
-      // window.document.getElementById("mail").value = "";
-      // window.document.getElementById("captcha").value = "";
+      window.document.getElementById("user").value = "";
+      window.document.getElementById("mail").value = "";
+      window.document.getElementById("captcha").value = "";
       window.document.getElementById("icLoad").style.display = "none";
       window.document.getElementById("btnSnd").style.display = "block";
       // Validacion RateLimit

@@ -11,6 +11,14 @@ userModel.login = async (userData, callback) => {
     user: userData.user,
     ip: userData.ip,
   };
+  //console.log("VALIDATE CAPTCHA ", userData.captchaPrivate, userData.captcha, userData.captchaPrivate === userData.captcha);
+  if (userData.captchaPrivate !== userData.captcha) {
+    await consumeRateLimit(data.ip, data.user, false, "Log"); //intentos fallidos desde /login
+    throw new FormError({
+      process: 1,
+      message: "CODIGO DE VERIFICACION INCORRECTO ",
+    }).toJson();
+  }
   let password;
   let userExist;
   const sql = `
@@ -95,6 +103,21 @@ userModel.login = async (userData, callback) => {
 };
 
 userModel.pass = async (userData, callback) => {
+ 
+  const data = {
+    user: userData.user,
+    mail: userData.mail,
+    ip: userData.ip,
+  }
+  //console.log("VALIDATE CAPTCHA ", userData.captchaPrivate, userData.captcha, userData.captchaPrivate === userData.captcha);
+  if (userData.captchaPrivate !== userData.captcha) {
+    await consumeRateLimit(data.ip, data.user, false, "Pas"); //intentos fallidos desde /login/password
+    throw new FormError({
+      process: 1,
+      message: "CODIGO DE VERIFICACION INCORRECTO ",
+    }).toJson();
+  }
+  
   const sql = `
             SET @user = ?;
             SET @mail = ?;
@@ -104,11 +127,7 @@ userModel.pass = async (userData, callback) => {
             SELECT @error AS error, @errMsg AS errMsg, @userExist AS userExist;
             `;
   //console.log("query ", sql);
-  const data = {
-    user: userData.user,
-    mail: userData.mail,
-    ip: userData.ip,
-  };
+  
   const rndom = crypt.genRand(10);
   const password = await crypt.encrypt(rndom);
   let userExist

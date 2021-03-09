@@ -4,7 +4,7 @@ const errorHelperCtrl = require('../../../helpers/v1/errorhelperCtrl');
 const ctrlWorkshop ={}
 
 ctrlWorkshop.show = errorHelperCtrl(async(req, res) => {
-  console.log('req ', req);
+  //console.log('req ', req);
   //console.log('user ', req.userId);
   // console.log('query ', req.query);
   // console.log("params ", req.params);

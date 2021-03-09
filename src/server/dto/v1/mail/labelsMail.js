@@ -2,6 +2,10 @@
 //   "lramos@enable.com.co",
 // ];
 const nodemailer = require("nodemailer");
+const redisClient = require("../../../models/v1/redis");
+const { promisify } = require("util");
+const getAsync = promisify(redisClient.get).bind(redisClient);
+const keysAsync = promisify(redisClient.keys).bind(redisClient);
 
 const objMail = {
   host: process.env.MAIL_HOST,
@@ -44,26 +48,47 @@ const labelMailNewPass = async (user, mail, ip, pass) => {
 const labelMailBlock = async (data) => {
   const receiver = ["lramos@enable.com.co"];
   //const receiver = ["lramos@enable.com.co", "soporte@enable.com.co"];
+  let subject, findRedis, endpoint
+   
+  if(data.type === "ip"){
+    findRedis = `*${data.data}*`;
+    subject = `a la IP `;
+  }else{
+    findRedis = `*${data.data}`;
+    subject = `al Usuario `;
+  }
+  let htmlExtra = `<div>Registros de REDIS asociados: `;
+  try {
+    const keys = await keysAsync([findRedis])
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const dataKey = await getAsync(key);
+      htmlExtra += `<p>Redis Key: ${key} -> Value: ${dataKey}</p>`;
+    }
+  } catch (err) {
   
-  let subject, endpoint
-  (data.type === 'ip') ? subject = `a la IP ` : subject = `al Usuario `;
+   }
+  htmlExtra += `</div>`;
+    
   if(data.prefix==='Log') endpoint = "api/login/"; else if(data.prefix === "Pas") endpoint = "api/login/password"; else endpoint = "api/";
-    const header = {
+
+  const html = `<h1>Servidor de Correo Automatico CertiGNV</h1>
+  <div>
+  <h2>Bloqueo generado ${subject}  ${data.data} </h2>
+  <p>Bloqueo por ${data.block}, despues de ${data.points} intentos fallidos al endpoint ${endpoint} en ${data.duration} </p>
+  <p>Verificar que:
+  <ul><li> No se hayan presentado ataques por fuerza bruta rapido, lento y/o distribuido.</li>
+  <li> La metrica calculada por cantidad de usuarios detras de un proxy sea la adecuada. </li>
+  <li> Ejecutar el procedimiento de desbloqueo de ip. </p>
+  </div> ${htmlExtra}`
+
+  const header = {
     from: `" Enable Technologies ${process.env.MAIL_HOST} 👻" <${process.env.MAIL_USER}>`,
     to: receiver.toString(), // si viene de un arreglo con varios correos
     subject: `Alerta Seguridad Limitador de Solicitudes CertiGNV ${process.env.MAIL_HOST} ✔`,
     //text: `${user} ${family} ${ip}`, // plain text body
-    html: `<h1>Servidor de Correo Automatico CertiGNV</h1>
-    <div>
-    <h2>Bloqueo generado ${subject}  ${data.data} </h2>
-    <p>Bloqueo por ${data.block}, despues de ${data.points} intentos fallidos al endpoint ${endpoint} en ${data.duration} </p>
-    <p>Revisar los registros de REDIS asociados a los limitadores de solicitud al endpoint y verificar que:
-    <ul><li> No se hayan presentado ataques por fuerza bruta rapido, lento y/o distribuido.</li>
-    <li> La metrica calculada por cantidad de usuarios detras de un proxy sea la adecuada. </li>
-    <li> Ejecutar el procedimiento de desbloqueo de ip. </p>
-    </div>`, // html body
+    html, // html body
   };
-  //console.log('header ', header);
   
   try {
     const infoMailer = await transporter.sendMail(header);
@@ -73,4 +98,30 @@ const labelMailBlock = async (data) => {
   } 
 }
 
-module.exports = { labelMailNewPass, labelMailBlock };
+const labelRedisDisconnect = async (data) => {
+  const receiver = ["lramos@enable.com.co"];
+  //const receiver = ["lramos@enable.com.co", "soporte@enable.com.co"];
+  const html = `<h1>Servidor de Correo Automatico CertiGNV</h1>
+  <div>
+  <h2> Desconexion Servicio ${data.service} </h2>
+  <p>Descripcion Error:</p>
+  <p>${data} </p>
+  </div>`;
+
+  const header = {
+    from: `" Enable Technologies ${process.env.MAIL_HOST} 👻" <${process.env.MAIL_USER}>`,
+    to: receiver.toString(), // si viene de un arreglo con varios correos
+    subject: `Alerta Desconexion Servicio CertiGNV ${process.env.MAIL_HOST} ✔`,
+    //text: `${user} ${family} ${ip}`, // plain text body
+    html, // html body
+  };
+
+  try {
+    const infoMailer = await transporter.sendMail(header);
+    return infoMailer.messageId;
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports = { labelMailNewPass, labelMailBlock, labelRedisDisconnect };

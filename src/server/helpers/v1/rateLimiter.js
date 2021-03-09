@@ -110,27 +110,32 @@ const consumeRateLimit = async (ip, user, userExist, prefix) => {
   (prefix==='Log') ? limByUser = limiterByUserLog : limByUser = limiterByUserPas;
   (prefix==='Log') ? limByIp = limiterByIpLog : limByIp = limiterByIpPas;
   
+  
   try {
 
-    const [blockByIpUser, blockByUser, blockByIp] = await Promise.all([
-      limByIpUser.get(`${ip}_${user}`),
-      limByUser.get(user),
-      // limByIp.get(ip),  // verificar que se haga en el ratelimitApi
-    ]);
+//     const [blockByIpUser, blockByUser, blockByIp] = await Promise.all([
+//       limByIpUser.get(`${ip}_${user}`),
+//       limByUser.get(user),
+//       // limByIp.get(ip),  // verificar que se haga en el ratelimitApi
+//     ]);
+// console.log('entra al try', blockByIpUser, blockByUser);
+// console.log('limite intentos ipUser ', attempts[`ByIpUser${prefix}`]);
+// console.log("limite intentos User ", attempts[`ByUser${prefix}`]);
 
-    if (
-      blockByIpUser !== null &&
-      blockByIpUser.consumedPoints > attempts[`ByIpUser${prefix}`]
-    ) {
-      dataReject.message = `El Acceso para este Usuario ha sido bloqueado.`;
-      throw new RateLimitError(dataReject).toJson();
-    } else if (
-      blockByUser !== null &&
-      blockByUser.consumedPoints > attempts[`ByUser${prefix}`]
-    ) {
-      dataReject.message = `El Acceso para este Usuario ha sido bloqueado.`;
-      throw new RateLimitError(dataReject).toJson();
-    } 
+//     if (
+//       blockByIpUser !== null &&
+//       blockByIpUser.consumedPoints > attempts[`ByIpUser${prefix}`]
+//     ) {
+//            
+//       dataReject.message = `El Acceso para este Usuario ha sido bloqueado.`;
+//       throw new RateLimitError(dataReject).toJson();
+//     } else if (
+//       blockByUser !== null &&
+//       blockByUser.consumedPoints > attempts[`ByUser${prefix}`]
+//     ) {
+//       dataReject.message = `El Acceso para este Usuario ha sido bloqueado.`;
+//       throw new RateLimitError(dataReject).toJson();
+//     } 
     // else if ( // verificar que se haga en el ratelimitApi
     //   blockByIp !== null &&
     //   blockByIp.consumedPoints > attempts[`ByIp${prefix}`]
@@ -138,12 +143,13 @@ const consumeRateLimit = async (ip, user, userExist, prefix) => {
     //   dataReject.message = `El Acceso para esta IP ha sido bloqueado.`;
     //   throw new RateLimitError(dataReject).toJson();
     // }
-    else {
+    //else {
       const limiterPromises = [];
       limiterPromises.push(limByIpUser.consume(`${ip}_${user}`));
       limiterPromises.push(limByUser.consume(user));
       limiterPromises.push(limByIp.consume(ip));
-
+      //console.log('SUMA');
+      
       if (limiterPromises.length > 0) {
         const resultPromises = await Promise.all(limiterPromises);
 
@@ -174,13 +180,13 @@ const consumeRateLimit = async (ip, user, userExist, prefix) => {
           //console.log("MailId alerta Bloqueo Ip ", sendMail);
         }
       }
-    }
+    //}
   } catch (reject) {
     // El try-Catch capta el error y permite seguir la ejecucion de la logica en caso que se caiga el servicio de REDIS no bloquea los accesos a /login o  /login/password
     if (reject instanceof Error) {
       //console.log("error limiter ", Error(reject));
     } else {
-      // console.log("reject limiter ", reject);
+       console.log("reject limiter ", reject);
       throw new RateLimitError(dataReject).toJson();
     }
   }
