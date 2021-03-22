@@ -9,14 +9,16 @@ const rateLimiterProfile = async (req, res, next) => {
     await limiterByIpUserFt.consume(ipUser);
     next();
   }catch(reject){
-  //console.log("reject ", reject);
+  
     if(reject instanceof Error) {
+      //console.error("error RateLimitProfile ", reject);
       req.log.error(`ERROR REDIS RateLimitProfile Middleware: ${Error(reject)}`);
       next()
     }else{
+      console.log("reject rateLimiterProfile", reject);
       res.status(200).json({
-        status: "stand By",
-        message: `Demasiadas Solicitudes, espere ${convertMS(
+        success: false,
+        payload: `Demasiadas Solicitudes, espere ${convertMS(
           reject.msBeforeNext,'ms'
         )}`,
       });

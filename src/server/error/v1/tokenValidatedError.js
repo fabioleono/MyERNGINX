@@ -8,11 +8,12 @@ class TokenError extends Error {
 }
 
   toJson(){
-    return{
+    return {
+      success: false,
       name: this.name,
       status: this.status,
       message: this.message,
-    }
+    };
   }
   
   

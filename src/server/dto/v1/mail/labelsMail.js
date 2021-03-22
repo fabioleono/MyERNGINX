@@ -45,6 +45,27 @@ const labelMailNewPass = async (user, mail, ip, pass) => {
   }    
 };
 
+const labelMailChangePass = async (user, mail, ip) => {
+  const header = {
+    from: `" Enable Technologies ${process.env.MAIL_HOST} 👻" <${process.env.MAIL_USER}>`,
+    to: mail,
+    subject: `Cambio de Contraseña CertiGNV ${process.env.MAIL_HOST} ✔`,
+    //text: `${user} ${family} ${ip}`, // plain text body
+    html: `<h1>Servidor de Correo Automatico CertiGNV</h1>
+    <div>
+    <h2>Usuario <b>${user}</b>, se registro un cambio de Contraseña para su cuenta. </h2>
+    <p>Si usted no genero este procedimiento por favor renueve su contraseña a traves del link <b>renovar contraseña</b> en <a href="www.certignv.com">CertiGNV</a>. </p>
+    <p>Generado desde ${ip}</p>
+    </div>`, // html body
+  };
+  try {
+    const infoMailer = await transporter.sendMail(header);
+    return infoMailer.messageId;
+  } catch (error) {
+    return error;
+  }
+};
+
 const labelMailBlock = async (data) => {
   const receiver = ["lramos@enable.com.co"];
   //const receiver = ["lramos@enable.com.co", "soporte@enable.com.co"];
@@ -124,4 +145,4 @@ const labelRedisDisconnect = async (data) => {
   }
 };
 
-module.exports = { labelMailNewPass, labelMailBlock, labelRedisDisconnect };
+module.exports = { labelMailNewPass, labelMailChangePass, labelMailBlock, labelRedisDisconnect };

@@ -5,18 +5,21 @@ import { getProfile } from "../../Redux/actionCreators";
 import { store } from "../../Redux/store";
 import { connect } from "react-redux";
 import { useEffect } from "react";
+import { NavLink } from "react-router-dom";
 
 
-const Certificador = ({ location, user }) => {
+const Certificador = ({ location, user, flag  }) => {
   //const user = match.params.user
-  console.log('INICIA CERTIFICADOR.JSX ');
+  //console.log('INICIA CERTIFICADOR.JSX ');
   // const familyProfile = location.pathname.split("/")[1];
   // store.dispatch(getProfile(familyProfile));
+  //console.log('history', history);
   
   useEffect(() => {
-    const familyProfile = location.pathname.split("/")[1];
+    const familyProfile = location.pathname
+    // console.log("path PROFILE", location.pathname);
     store.dispatch(getProfile(familyProfile));
-     console.log("TERMINA RENDERIZADO CERTIFICADOR ");
+    
   }, [location]);
 
   return (
@@ -25,6 +28,19 @@ const Certificador = ({ location, user }) => {
         {user && (
           <main id="contenedor">
             <h1>RENDER ACA CERTIFICADOR</h1>
+            {flag === 1 ? (
+              <div>
+                <p>Por su seguridad se recomienda renovar su contraseña.</p>
+                <p>
+                  <NavLink to={{ pathname: "/password", user }}>
+                    Cambiar de Contraseña
+                  </NavLink>
+                  .
+                </p>
+              </div>
+            ) : (
+              <h2>EStadisticas de Usuario</h2>
+            )}
           </main>
         )}
       </div>
@@ -35,6 +51,7 @@ const Certificador = ({ location, user }) => {
 
 const mapStateToProps = (state) => ({
   user: state.userReducer.user,
+  flag: state.userReducer.flag,
 });
 export default connect(mapStateToProps, {})(Certificador);
 

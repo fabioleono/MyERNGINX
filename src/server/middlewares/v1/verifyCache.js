@@ -1,9 +1,18 @@
 const redisClient = require('../../models/v1/redis')
 const { promisify } = require("util");
-
 const getAsync = promisify(redisClient.get).bind(redisClient);
 const caching = async (req, res, next) => {
   console.log("MIDDLEWARE CACHING query:", req.query, " params:", req.params);
+  //console.log('dataRequest ', req);
+  
+  // console.log('url ', req.url);
+  // console.log("search ", req.search);
+  // console.log("pathname ", req.pathname);
+  // console.log("path ", req.path);
+  // console.log("href ", req.href);
+  // console.log("raw ", req._raw);
+  // console.log("route ", req.route);
+  
   // console.log("MIDDLEWARE VALIDATE CACHE ");
   //const master = req.query.master;
   //const id = req.params.id;
@@ -17,7 +26,7 @@ const caching = async (req, res, next) => {
       next();
     }
   } catch (error) {
-    req.log.error(`ERROR REDIS varifyCache Middleware: ${error}`);
+    req.log.error(`ERROR REDIS verifyCache Middleware: ${error}`);
     next();
   }
 

@@ -1,6 +1,5 @@
 // const router = require("express").Router({ mergeParams: true }); trae los params de la anidacion de rutas
 const router = require("express").Router();
-const ctrl = require("../../controllers/v1/profile");
 const ctrlWorkshop = require("../../controllers/v1/certificador/talleres");
 const ctrlTechnical = require("../../controllers/v1/certificador/tecnicosTaller");
 // const ctrlAudit = require("../../controllers/v1/certificador/auditores");
@@ -8,18 +7,12 @@ const ctrlTechnical = require("../../controllers/v1/certificador/tecnicosTaller"
 // const ctrlQuery = require("../../controllers/v1/certificador/consulta");
 // const ctrlDownload = require("../../controllers/v1/certificador/descarga");
 
-const verifyToken = require('../../middlewares/v1/verifyToken');
-const verifyCache = require('../../middlewares/v1/verifyCache')
-const rateLimiterProfile = require("../../middlewares/v1/rateLimitProfile");
+const verifyCache = require("../../middlewares/v1/verifyCache");
 
-router.use(verifyToken) // para todas las siguientes rutas Verifica si hay un token valido
-
-router.get("/", ctrl.profile); // trae el perfil del usuario 
-
-router.get("/talleres", rateLimiterProfile, verifyCache, ctrlWorkshop.show);// muestro los talleres de la familia
+router.get("/talleres", verifyCache, ctrlWorkshop.show);// muestro los talleres de la familia
 // router.post("/talleres", ctrlWorkshop.insert);
 
-router.get("/talleres/tecnicos", rateLimiterProfile, ctrlTechnical.show);
+router.get("/talleres/tecnicos", ctrlTechnical.show);
 // router.post("/talleres/tecnicos", ctrlTechnical.insert);
 // router.put("/talleres/tecnicos/:id", ctrlTechnical.update);
 // router.delete("/talleres/tecnicos/:id", ctrlTechnical.delete);

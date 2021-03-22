@@ -5,9 +5,7 @@ const dtoMail = require('../../dto/v1/mail/labelsMail')
 const rateLimiterApi = async (req, res, next) => {
   const ip = req.header("X-Forwarded-For") || req.ip;
   const user = req.body.user
-    
-  console.log('MIDDLEWARE RATE LIMIT API ');
-  
+  //console.log('MIDDLEWARE RATE LIMIT API ');
   const dataReject = {
     name: "Rate Limit Error",
     status: 429,
@@ -43,7 +41,6 @@ const rateLimiterApi = async (req, res, next) => {
       dataReject.message = `El acceso ha sido bloqueado 106 `;
       next(new RateLimitError(dataReject).toJson());
     } else {
-            
       const limiterPromises = [];
       limiterPromises.push(limiterByIp.consume(ip)); // bloqueo en Memoria (inmemoryBlockOnConsumed) y redis, despues que la solicitud supera los puntos permitidos el metodo .consume() NO incrementa
       limiterPromises.push(limiterByIpFt.consume(ip)); // bloqueo en Redis, despues que la solicitud supera los puntos permitidos el metodo .consume() incrementa
@@ -75,6 +72,7 @@ const rateLimiterApi = async (req, res, next) => {
      
   } catch (reject) {
       if (reject instanceof Error) {
+        //console.error("error RateLimitApi ", reject);
         req.log.error(`ERROR REDIS RateLimitApi Middleware: ${Error(reject)}`);
         next();
       } else {

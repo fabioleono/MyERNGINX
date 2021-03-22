@@ -8,7 +8,7 @@ const validation = (schema) => {
       next();
     } catch (error) {
       error.ip = req.header("X-Forwarded-For") || req.ip;
-      error.user = error.value.user;
+      //error.user = error.value.user;
       next(new FormError(error).toJson());
     }
   };

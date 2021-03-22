@@ -1,20 +1,20 @@
 import React from 'react' 
-import { getTechnicals } from '../../Redux/actionCreators';
-import { connect } from "react-redux";
-import { store } from "../../Redux/store";
+
+
+
 import { useEffect } from "react";
 
-const Technicals = ({ location, technicals }) => {
+const Technicals = ({ location }) => {
   console.log("LOCATION TECNICOS TALLERES", location);
   useEffect(() => {
-    const { master, pathname } = location;
-    const familyProfile = pathname.split("/")[1];
-    store.dispatch(getTechnicals(master, familyProfile));
+    // const { master, pathname } = location;
+    // const familyProfile = pathname.split("/")[1];
+    
     
   }, [location]);
   return (
     <>
-      {technicals && (
+      {location && (
         <div>
           <h1>Tecnicos de Talleres GNV</h1>
           <h3>Competencias Laborales</h3>
@@ -30,15 +30,13 @@ const Technicals = ({ location, technicals }) => {
             voluptatum nam nesciunt unde dolore nihil ratione voluptatem
             dignissimos quisquam possimus modi! Impedit, tempore modi.
           </p>
-          <p>{JSON.stringify(technicals)}</p>
+          <p>{}</p>
         </div>
       )}
     </>
   );
 }
-const mapStateToProps = (state) => ({
-  technicals: state.technicalReducer.technicals,
-});
 
-export default connect(mapStateToProps, {})(Technicals);
+
+export default Technicals;
  

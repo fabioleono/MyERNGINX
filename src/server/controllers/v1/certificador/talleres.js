@@ -4,19 +4,28 @@ const errorHelperCtrl = require('../../../helpers/v1/errorhelperCtrl');
 const ctrlWorkshop ={}
 
 ctrlWorkshop.show = errorHelperCtrl(async(req, res) => {
+
+  // console.log("urlTall ", req.url);
+  // console.log("searchTall ", req.search);
+  // console.log("pathnameTall ", req.pathname);
+  // console.log("pathTall ", req.path);
+  // console.log("hrefTall ", req.href);
+  // console.log("rawTall ", req._raw);
+  // console.log("routeTall ", req.route);
   //console.log('req ', req);
   //console.log('user ', req.userId);
   // console.log('query ', req.query);
   // console.log("params ", req.params);
   // console.log('methods ', req.method);
-  //console.log("TALLERES RRL ", req.rateLimit);
-  const master = req.query.master;
+  const master = req.masterId;
   const id = req.params.id;
   //const keyRedis = `T_${master}_${id}`;
   // const data3 = 'entrada de error con bad command'
   // redisClient.set("algo3", 3600, JSON.stringify(data3));
 
   await modelWorkshop.show(master, id, (data) => {
+    //console.log('data talleres ', data);
+    
     req.log.warn(`Consulta a Perfil Talleres-> usuario:${req.userId}`);
     res.status(200).json(data);
     // let lengthDta

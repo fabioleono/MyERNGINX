@@ -4,9 +4,9 @@ class FormError extends Error {
    //console.log('ERROR CLASE VALIDATED FORM ', error);
     super()
     this.ip = error.ip;
-    this.user = error.user;
+    // this.user = error.user;
     this.name = 'Form Validation Error';
-    this.status = 403;
+    this.status = 400;
     this.message = error.message;
     this.path = error.path;
     if(error.process){ // Trae un error de procedimiento
@@ -18,6 +18,7 @@ class FormError extends Error {
 
   toJson(){
     return{
+      success: false,
       name: this.name,
       status: this.status,
       message: this.message,

@@ -8,14 +8,15 @@ import Profile from '../Molecules/profile';
 //import ProfilePublic from '../Molecules/profilePublic'
 import { connect } from 'react-redux';
 
-
 const NavMenu = ( { profile, user  }) => {
+
 
   return (
     <>
       <div className="container">
         <nav>
           <ul>
+            {user && <li>{user}</li>}
             <li>
               <NavLink to="/" exact>
                 Home
@@ -28,7 +29,11 @@ const NavMenu = ( { profile, user  }) => {
               <NavLink to="/contacto">Contactenos</NavLink>
             </li>
 
-            {(localStorage.getItem("token") && user) ? <PrivateMenu /> : <PublicMenu />}
+            {localStorage.getItem("token") && profile ? (
+              <PrivateMenu />
+            ) : (
+              <PublicMenu />
+            )}
             {localStorage.getItem("tokenPublic") ? (
               <PrivateInfoMenu />
             ) : (
@@ -36,19 +41,18 @@ const NavMenu = ( { profile, user  }) => {
             )}
           </ul>
         </nav>
-        {(profile && user) ? <Profile />
-          : (
-        <div className="user_Profile">
-          <img
-            src="/images/emptProfile.png"
-            alt=""
-            height="50px"
-            width="50px"
-            
-          />
-        </div>
-      )
-      }
+        {localStorage.getItem("token") && profile ? (
+          <Profile />
+        ) : (
+          <div className="user_Profile">
+            <img
+              src="/images/emptProfile.png"
+              alt=""
+              height="50px"
+              width="50px"
+            />
+          </div>
+        )}
         {/* {consumer && <ProfilePublic />} */}
       </div>
     </>

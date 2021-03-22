@@ -1,22 +1,22 @@
 import axios from "axios";
-import { GET_USER, GET_PROFILE, GET_ALL_WORKSHOPS, GET_ALL_TECHNICALS } from "./actions";
+import { GET_USER, GET_PROFILE, GET_ALL_WORKSHOPS } from "./actions";
 const url = process.env.REACT_APP_API_URL;
-const code = process.env.REACT_APP_MSG_REQ_PER_MINUTE;
 
-export const getUser = (user, family) => (dispatch) => {
+
+export const getUser = (user, family, flag) => (dispatch) => {
   //console.log("DISPATCH GET USER ....");
   return dispatch({
     type: GET_USER,
-    user: user,
-    family: family,
+    user,
+    family,
+    flag,
   });
 };
 
 export const getProfile = (family) => (dispatch) => {
   //console.log("DISPATCH PROFILE ....");
-
   axios
-    .get(`${url}/${family}`, {
+    .get(`${url}${family}`, {
       headers: {
         "x-access-token": localStorage.getItem("token"),
       },
@@ -25,40 +25,51 @@ export const getProfile = (family) => (dispatch) => {
       //console.log("DATA DISPATCH PROFILE", res.data);
       return dispatch({
         type: GET_PROFILE,
-        profile: res.data,
+        profile: res.data.payload,
       });
     })
     .catch((error) => {
-      //console.log("ERROR DISPATCH PROFILE ", error.response.data);
-
-      const { data, status } = error.response;
-      if (data === code && status === 429) {
-        return (window.location = `/?code=${code}`);
-      } else {
-        dispatch({
-          type: GET_PROFILE,
-          profile: "",
-        });
-        dispatch({
-          type: GET_USER,
-          user: "",
-          family: "",
-        });
-
-        //console.log("SET REDUX ");
-        localStorage.removeItem("token");
-        localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-        //console.log("SET TOKENS ");
-        return (window.location = `/error?error=${status}`);
-      }
+      const { status } = error.response;
+      //console.log("ERROR DISPATCH PROFILE ", error.response.data, data);
+      dispatch({
+        type: GET_PROFILE,
+        profile: "",
+      });
+      dispatch({
+        type: GET_USER,
+        user: "",
+        family: "",
+        flag: "",
+      });
+      //console.log("SET REDUX ");
+      localStorage.removeItem("token");
+      localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
+      //console.log("SET TOKENS ");
+      return (window.location = `/error?error=${status}`);
     });
 };
 
-export const getWorkshops = (master, family) => async (dispatch) => {
-  if (master === undefined) return (window.location = `/${family}`); // Si no hay maestro, es por que recargaron el browser desde /family/talleres. El master viene del menu(profile)
 
+export const logOutUser = () => (dispatch) => {
+  //console.log('DISPATCH LOGOUTUSER');
+  dispatch({
+    type: GET_PROFILE,
+    profile: "",
+  });
+  dispatch({
+    type: GET_USER,
+    user: "",
+    family: "",
+    flag: "",
+  });
+  localStorage.removeItem("token");
+  localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
+};
+
+export const getWorkshops = (family) => async (dispatch) => {
+  
   try {
-    const res = await axios.get(`${url}/${family}/talleres?master=${master}`, {
+    const res = await axios.get(`${url}/${family}/talleres`, {
       headers: {
         "x-access-token": localStorage.getItem("token"),
       },
@@ -71,10 +82,8 @@ export const getWorkshops = (master, family) => async (dispatch) => {
   } catch (error) {
     //console.log("ERROR DISPATCH TALLERES ", error.response);
 
-    const { data, status } = error.response;
-    if (data === code && status === 429) {
-      return (window.location = `/?code=${code}`);
-    } else {
+    const { status } = error.response;
+    
       dispatch({
         type: GET_PROFILE,
         profile: "",
@@ -83,94 +92,17 @@ export const getWorkshops = (master, family) => async (dispatch) => {
         type: GET_USER,
         user: "",
         family: "",
+        flag: "",
       });
       //console.log("SET REDUX ");
       localStorage.removeItem("token");
       localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
       //console.log("SET TOKENS ");
       return (window.location = `/error?error=${status}`);
-    }
+  
   }
-
-  // axios
-  //   .get(`${url}/${family}/talleres?master=${master}`, {
-  //     headers: {
-  //       "x-access-token": localStorage.getItem("token"),
-  //     },
-  //   })
-  //   .then((res) => {
-  //     console.log("DATA DISPATCH TALLERES ", res.data);
-
-  //     return dispatch({
-  //       type: GET_ALL_WORKSHOPS,
-  //       workshops: res.data,
-  //     });
-  //   })
-  //   .catch((error) => {
-  //     console.log("ERROR DISPATCH TALLERES ", error.response);
-  //     dispatch({
-  //       type: GET_PROFILE,
-  //       profile: "",
-  //     });
-  //     dispatch({
-  //       type: GET_USER,
-  //       user: "",
-  //       family: "",
-  //     });
-
-  //     console.log("SET REDUX ");
-  //     const { data, status } = error.response;
-  //     if (data === code && status === 429) {
-  //       return (window.location = `/?code=${code}`);
-  //     } else {
-  //       localStorage.removeItem("token");
-  //       localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-  //        console.log("SET TOKENS ");
-  //       return (window.location = `/error?error=${status}`);
-  //     }
-  //   });
 };
 
-
-export const getTechnicals = (master, family) => async (dispatch) => {
-  if (master === undefined) return (window.location = `/${family}`); // Si no hay maestro, es por que recargaron el browser desde /family/talleres. El master viene del menu(profile)
-
-  try {
-    const res = await axios.get(`${url}/${family}/talleres/tecnicos?master=${master}`, {
-      headers: {
-        "x-access-token": localStorage.getItem("token"),
-      },
-    });
-    console.log("DATA DISPATCH TECNICOS ", res.data);
-    return dispatch({
-      type: GET_ALL_TECHNICALS,
-      technicals: res.data,
-    });
-  } catch (error) {
-    console.log("ERROR DISPATCH TECNICOS TALLERES ", error.response);
-
-    const { data, status } = error.response;
-    if (data === code && status === 429) {
-      return (window.location = `/?code=${code}`);
-    } else {
-      dispatch({
-        type: GET_PROFILE,
-        profile: "",
-      });
-      dispatch({
-        type: GET_USER,
-        user: "",
-        family: "",
-      });
-      console.log("SET REDUX ");
-      localStorage.removeItem("token");
-      localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-      console.log("SET TOKENS ");
-      return (window.location = `/error?error=${status}`);
-    }
-  }
-
-};
 
 
 // --- ANALIZAR LA SALIDA PARA QUE EL FRONT-END RESPÒNDA EN CASO DE FALLAR EL BACKEND
@@ -210,33 +142,3 @@ export const getTechnicals = (master, family) => async (dispatch) => {
 // }
 // console.log("SIZE ", lengthDta);
 //---
-
-// export const getAllPublics = () => (dispatch) => {
-//   axios.get(`${url}/infopublica`).then((res) => {
-//     return dispatch({
-//       type: GET_ALL_PUBLICS,
-//       infos: res.data,
-//     });
-//   });
-// };
-
-// export const getPublic = (consumer) => (dispatch) => {
-//   axios.get(`${url}/infopublica/${consumer}`).then((res) => {
-//     console.log("data dispatch", res.data);
-//     return dispatch({
-//       type: GET_PUBLIC,
-//       info: res.data,
-//       consumer: consumer,
-//     });
-//   });
-// };
-
-// export const getAllUsers = () => (dispatch) => {
-//   axios.get(`${url}/users`)
-//   .then(res => {
-//     return dispatch({
-//       type: GET_ALL_USERS,
-//       users: res.data
-//     })
-//   })
-// };

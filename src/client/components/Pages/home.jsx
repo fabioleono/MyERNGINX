@@ -1,22 +1,9 @@
 import React from 'react' 
 const Home = ({ location }) => {
-  const manyReq = process.env.REACT_APP_MSG_REQ_PER_MINUTE;
-  const params = new URLSearchParams(location.search);
-  const code = params.get("code");
-  return code === manyReq ? (
-    <div>
-      <p>
-        Se detecto un alto trafico desde su IP . Por favor espere unos minutos o
-        envie esta solicitud al centro de soporte
-      </p>
-      <form action="">
-        <label htmlFor="">CAPTCHA
-          <input type="text" placeholder="Ingrese el codigo"/>
-        </label>
-        <input type="submit" value="Enviar"/>
-      </form>
-    </div>
-  ) : (
+  
+  // const params = new URLSearchParams(location.search);
+    return (
+    
     <div>
       <h2>PAGINA AL HOME</h2>
       <p>

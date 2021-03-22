@@ -9,6 +9,7 @@ class RateLimitError extends Error {
 
   toJson(){
     return {
+      success: false,
       name: this.name,
       status: this.status,
       message: this.message,

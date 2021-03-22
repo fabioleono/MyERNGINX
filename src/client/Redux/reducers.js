@@ -2,7 +2,6 @@ import {
   GET_USER,
   GET_PROFILE,
   GET_ALL_WORKSHOPS,
-  GET_ALL_TECHNICALS,
 } from "./actions";
 
 export const userReducer = (state={}, action) => {
@@ -11,6 +10,8 @@ export const userReducer = (state={}, action) => {
       ...state,
       user: action.user,
       family: action.family,
+      master: action.master,
+      flag: action.flag,
     };
   } 
   return state
@@ -36,53 +37,4 @@ export const workshopReducer = (state = {}, action) => {
   return state;
 };
 
-export const technicalReducer = (state = {}, action) => {
-  if (action.type === GET_ALL_TECHNICALS) {
-    return {
-      ...state,
-      technicals: action.technicals,
-    };
-  }
-  return state;
-};
-
-// export const errorReducer = (state = {}, action) => {
-//   if (action.type === GET_ERRORS) {
-//     return {
-//       ...state,
-//       errors: action.errors,
-//     };
-//   }
-//   return state;
-// };
-
-// export const sessionReducer = (state = {}, action) => {
-//   if (action.type === SET_SESSION) {
-//     return action.session;
-//   }
-//   return state;
-// };
-
-
-// export const publicReducer = (state = {}, action) => {
-//   if (action.type === GET_ALL_PUBLICS) {
-//     return {
-//       ...state,
-//       infos: action.infos,
-//     };
-//   }
-//   if (action.type === GET_PUBLIC) {
-//     return {
-//       ...state,
-//       info: action.info,
-//       consumer: action.consumer,
-//     };
-//   }
-
-//   return state;
-// };
-
-
-
-// TEST
 

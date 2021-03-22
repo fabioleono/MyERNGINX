@@ -7,6 +7,8 @@ const bodyParser = require('body-parser');
 const rateLimiterApi = require('../middlewares/v1/rateLimitApi')
 const compression = require('compression')
 const errorMiddleware = require("../middlewares/v1/errorMiddleware");
+let logrotate = require("logrotator");
+const captcha = require("../middlewares/v1/captchaStore");
 
 const app = express()
 
@@ -38,10 +40,6 @@ const expressPino = require("express-pino-logger")({
 });
 app.use(expressPino);
 
-
-//logger.info("LOGGER BASICO7");
-let logrotate = require("logrotator");
-const captcha = require("../middlewares/v1/captchaStore");
 // use the global rotator
 let rotator = logrotate.rotator;
 // check file rotation every 5 minutes, and rotate the file if its size exceeds 1 mb.
@@ -129,53 +127,50 @@ if (process.env.NODE_ENV === "development") {
   app.use(cors()); // solo permitido el acceso a cors en peticiones en ambiente de desarrollo
 } 
 
-
-// ALmacenador de Captcha
+//ALmacenador de Captcha
 app.use(captcha)
+
 // LIMITADOR DE SOLICITUDES
-app.use(rateLimiterApi)
+// tambien se almacena la variable local para validar los captcha en endpoints de login
+app.use(rateLimiterApi) 
 
 // ROUTES
 const version = process.env.API_VERSION
 const api = `${process.env.API}${version}`
-//app.use(`${api}`, apiLimiter); // limitador de Solicitudes
 
-app.use(api, require(`../routes${version}/authentication`)); //rutas de Autenticacion y Login 
+app.use(api, require(`../routes${version}/auth`)); //rutas de Autenticacion y Login 
 app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticacion y login Usuario Info Publica
 
-const accessAdmin = `${api}/administrador`
-app.use(accessAdmin, require(`../routes${version}/administrador`));// rutas del superusuario
+const accessGeneral = new RegExp(""+ api + "/(administrador|certificador|gobierno)");
+app.use(accessGeneral, require(`../routes${version}/generalFamily`)); //rutas Accedidas por todas las familias. VERIFICACION DE TOKEN PARA TODOS LOS ENDPOINT (siempre va primero)
 
-//const accessCert = /\/api\/gnvco\/v1\/(administrador|certificador)/; 
-// const accessCert = new RegExp('/(administrador|certificador)');
-// const accessCert = /\/(administrador|certificador)/;
+const accessAdmin = `${api}/administrador`
+app.use(accessAdmin, require(`../routes${version}/administradorFamily`));// rutas del superusuario
 
 const accessCert = new RegExp(""+ api + "/(administrador|certificador)");// las rutas de la familia certificador pueden tambien ser accedidas por el superusuario, utilizando el mismo controlador y filtradas en las query del modelo
-app.use(accessCert, require(`../routes${version}/certificador`));// Rutas de la familia certificador y superusuario
+app.use(accessCert, require(`../routes${version}/certificadorFamily`));// Rutas de la familia certificador y superusuario
 
 const accessGob = new RegExp(""+ api + "/(administrador|gobierno)");// las rutas de la familia Gobierno pueden tambien ser accedidas por el superusuario, utilizando el mismo controlador y filtradas en las query del modelo
-app.use(accessGob, require(`../routes${version}/gobierno`)) // Rutas de la familia Gobierno y superusuario
+app.use(accessGob, require(`../routes${version}/gobiernoFamily`)) // Rutas de la familia Gobierno y superusuario
 
 const accessInfoPublic = `${api}/infopublica`
 app.use(accessInfoPublic, require(`../routes${version}/infoPublica`)) // Rutas del usuario de Info Publica
 
 app.use(api, require(`../routes${version}/wildcards/App`));// Accedo a la ruta para subdominio app.enabletech.tech
-app.use(api, require(`../routes${version}/mail`));// La ruta para generar correos automaticos (Pruebas)
-
 
 // STATIC FILES
 // en la carpeta bundle se genera el codigo que se convierte del  FRONTEND con npm run build 
 app.use(express.static(path.join(__dirname, "../../../", "build"))); 
 
 //console.log('rutas React ', require('../routes/v1/react'));
-require("../routes/v1/react").map((e) => {
-  return app.use(e, express.static(path.join(__dirname, "../../../", "build")));
-});
-// Ej:
+require("../routes/v1/react").map((routesReact) => {
+  return app.use(routesReact, express.static(path.join(__dirname, "../../../", "build")));
+  // Ej:
 // app.use("/proyecto", express.static(path.join(__dirname, "../../../", "build")));
-// app.use("/certignv", express.static(path.join(__dirname, "../../../", "build")));
-// app.use("/certignv/:user", express.static(path.join(__dirname, "../../../", "build")));
-// Dentro del arreglo de react va una ruta al resto *. Con ella renderiza el componente de REACT error 404 ruta no encontrada
+// app.use("/certificador", express.static(path.join(__dirname, "../../../", "build")));
+// app.use("/administrador/talleres", express.static(path.join(__dirname, "../../../", "build")));
+});
+
 
 app.use(errorMiddleware)
 

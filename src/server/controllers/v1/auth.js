@@ -4,10 +4,16 @@ const errorHelperCtrl = require('../../helpers/v1/errorhelperCtrl');
 const ctrlAuth = {};
 const FormError = require("../../error/v1/formValidatedError");
 const svgCaptcha = require("svg-captcha");
+const redisClient = require("../../models/v1/redis");
+const { promisify } = require("util");
+const getAsync = promisify(redisClient.get).bind(redisClient);
+
 
 ctrlAuth.captcha = (req, res) => {
+  const userInpt = req.query.userInpt
+  const ip = req.header("X-Forwarded-For") || req.ip;
   const conf = {
-    size: 6,
+    size: 1,
     ignoreChars: "0Oo1il", // filter out some characters like 0o1i
     noise: 3, // number of noise lines
     color: false, // characters will have distinct colors instead of grey, true if background option is set
@@ -18,24 +24,39 @@ ctrlAuth.captcha = (req, res) => {
     //charPreset: "string", // random character preset,
   };
   let captcha = svgCaptcha.create(conf);
-
   res.type("svg");
   //console.log("original--> ", captcha.text);
-  req.app.locals.captchaPrivate = captcha.text;
+  let prefix
+  // Cambia el prefijo REDIS si el endpoint viene de /login O /login/password
+  req.path.includes("password") ? (prefix = "vH_Pas") : (prefix = "vH_Log");
+  const dataKey = `${prefix}:${ip}_${userInpt}`;
+  redisClient.setex(dataKey, 60, captcha.text, (err, data) => {
+    if(err) req.log.error(`Error REDIS Generacion Captcha -> usuario:${userInpt} ip:${ip} error:${err}`);
+  });
   res.status(200).send(captcha.data);
 };
 
 ctrlAuth.login = errorHelperCtrl(async (req, res) => {
-  //const slow = req.slowDown;
-  //console.log('limitador velocidad /login', slow)
+  // console.log("Body ", req.body);
   const ip = req.header("X-Forwarded-For") || req.ip;
   const { user, pass, captcha } = req.body;
-  const captchaPrivate = req.captchaPrivate;
+  //console.log('captcha Usuario', captcha);
+  //console.log('REDIS ', redisClient.ready);
+  const dataKey = `vH_Log:${ip}_${user}`;
+  let captchaRedis;
+  if (redisClient.ready) {
+    // Si el servicio de REDIS esta activo obtiene el valor de la key asociada al captcha generado en ctrlAuth.captcha
+    captchaRedis = await getAsync(dataKey);
+  } else {
+    //Si no, NO VALIDA CAPTCHA. No Para el flujo de la APP,
+    captchaRedis = captcha;
+  }
+  //console.log("captcha", captchaRedis);
   const userData = {
-    user,
+    user: user.toLowerCase(),
     pass,
     ip,
-    captchaPrivate,
+    captchaRedis,
     captcha,
   };
 
@@ -49,28 +70,35 @@ ctrlAuth.login = errorHelperCtrl(async (req, res) => {
 
 ctrlAuth.pass = errorHelperCtrl(async (req, res) => {
   //const slow = req.slowDown;
+  //console.log('Body ', req.body);
   //console.log('limitador velocidad /login/password', slow)
   const { user, mail, captcha } = req.body;
   const ip = req.header("X-Forwarded-For") || req.ip;
-  const captchaPrivate = req.captchaPrivate;
+  const dataKey = `vH_Pas:${ip}_${user}`;
+  let captchaRedis;
+  if (redisClient.ready) {
+    captchaRedis = await getAsync(dataKey);
+  } else {
+    captchaRedis = captcha;
+  }
   const userData = {
-    user,
-    mail,
+    user: user.toLowerCase(),
+    mail: mail.toLowerCase(),
     ip,
-    captchaPrivate,
+    captchaRedis,
     captcha,
   };
   
   await userModel.pass(userData, (data) => {
    // console.log('data response ', data);
-    if (data.idMail instanceof Error) {
-      req.log.error(`Error Servicio de Correo ->userModel.pass: ${Error(data.idMail)}`)
+    if (data.payload.idMail instanceof Error) {
+      req.log.error(`Error Servicio de Correo ->userModel.pass: ${Error(data.payload.idMail)}`)
       throw new FormError({
         process: 1,
         message: "EN ESTE MOMENTO NO PODEMOS RECUPERAR LA CONTRASEÑA ",
       }).toJson();
     } else {
-      req.log.warn(`Recover Password WEB-> usuario:${user} ip:${ip} correo:${mail} idMail:${data.idMail}`);
+      req.log.warn(`Recover Password WEB-> usuario:${user} ip:${ip} correo:${mail} idMail:${data.payload.idMail}`);
       res.status(200).json(data);
     }
     

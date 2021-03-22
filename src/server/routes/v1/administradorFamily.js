@@ -1,18 +1,11 @@
 const  router   = require('express').Router()
-const ctrl = require("../../controllers/v1/profile");
-// const ctrlAccess = require('../../controllers/v1/admin/accesos')
+
+const ctrlScript = require('../../controllers/v1/admin/scripts')
 // const ctrlRols = require("../../controllers/v1/admin/roles");
 // const ctrlFamilies = require("../../controllers/v1/admin/familias");
 // const ctrlModuls = require("../../controllers/v1/admin/modulos");
-const verifyToken = require("../../middlewares/v1/verifyToken");
 
-router.use(verifyToken)
-router.get('/', ctrl.profile);
-
-// router.get('/accesos', ctrlAccess.show)
-// router.post('/accesos', ctrlAccess.insert)
-// router.put('/accesos/:user', ctrlAccess.update)
-// router.delete('/accesos/:user', ctrlAccess.delete)
+router.put('/scripts', ctrlScript.run)
 
 // router.get("/roles", ctrlRols.show);
 // router.post("/roles", ctrlRols.insert);

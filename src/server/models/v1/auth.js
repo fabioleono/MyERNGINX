@@ -7,13 +7,15 @@ const dtoMail = require("../../dto/v1/mail/labelsMail");
 const { consumeRateLimit, deleteRateLimit } = require("../../helpers/v1/rateLimiter");
 
 userModel.login = async (userData, callback) => {
-  const data = {
+  //console.log('ENTRA AL MODELO');
+  
+  const payload = {
     user: userData.user,
     ip: userData.ip,
   };
-  //console.log("VALIDATE CAPTCHA ", userData.captchaPrivate, userData.captcha, userData.captchaPrivate === userData.captcha);
-  if (userData.captchaPrivate !== userData.captcha) {
-    await consumeRateLimit(data.ip, data.user, false, "Log"); //intentos fallidos desde /login
+  //console.log("VALIDATE CAPTCHA ", userData.captchaRedis, userData.captcha, userData.captchaRedis === userData.captcha);
+  if (userData.captchaRedis !== userData.captcha) {
+    await consumeRateLimit(payload.ip, payload.user, false, "Log"); //intentos fallidos desde /login
     throw new FormError({
       process: 1,
       message: "CODIGO DE VERIFICACION INCORRECTO ",
@@ -21,57 +23,63 @@ userModel.login = async (userData, callback) => {
   }
   let password;
   let userExist;
+  let maestro;
+  let accesos;
   const sql = `
     SET @user = ?;
-    CALL gnv2_p_user_login_validate(@user, @error, @errMsg, @passproc, @maestro, @family, @userExist);
-    SELECT @error AS error, @errMsg AS errMsg, @passproc AS passproc, @maestro AS maestro, @family AS family, @userExist AS userExist; 
+    CALL gnv2_p_user_login_validate(@user, @error, @errMsg, @passproc, @maestro, @family, @userExist, @accesos);
+    SELECT @error AS error, @errMsg AS errMsg, @passproc AS passproc, @maestro AS maestro, @family AS family, @userExist AS userExist, @accesos AS accesos; 
     `;
   //console.log('query ', sql);
   const result = await db.query(sql, [userData.user, userData.ip]);
   result.flat().forEach((e) => {
     if (e.error !== undefined) {
-      data.process = e.error;
-      data.message = e.errMsg;
+      payload.process = e.error;
+      payload.message = e.errMsg;
       userExist = e.userExist ? true : false;
       password = e.passproc;
       if(e.error===0){ 
-        data.master = e.maestro; 
-        data.family = e.family;
+        payload.family = e.family;
+        maestro = e.maestro;
+        accesos = e.accesos;
       }
     }
   });
-
+  
   if (!userExist) {// usuario no existe
-    await consumeRateLimit(data.ip, data.user, userExist, 'Log'); //intentos fallidos desde /login
-    throw new FormError(data).toJson();
+    await consumeRateLimit(payload.ip, payload.user, userExist, 'Log'); //intentos fallidos desde /login
+    throw new FormError(payload).toJson();
   }
-  if(data.process === 2){ //Cambio de version
-    await consumeRateLimit(data.ip, data.user, userExist, 'Log');
-    throw new FormError(data).toJson();
+  if(payload.process === 2){ //Cambio de version
+    await consumeRateLimit(payload.ip, payload.user, userExist, 'Log');
+    throw new FormError(payload).toJson();
   }
   const validate = await crypt.desencrypt(userData.pass, password);
   if (!validate) { // password invalida
-    await consumeRateLimit(data.ip, data.user, userExist, 'Log');
+    await consumeRateLimit(payload.ip, payload.user, userExist, 'Log');
     throw new FormError({
       process: 1,
       message: "ERROR DE USUARIO O CONTRASEÑA",
     }).toJson();
   }
-  if (data.process === 1 || data.process === 3) {// password valida con usuario limitado
-    await consumeRateLimit(data.ip, data.user, userExist, 'Log');
-    throw new FormError(data).toJson();
+  if (payload.process === 1 || payload.process === 3) {// password valida con usuario limitado
+    await consumeRateLimit(payload.ip, payload.user, userExist, 'Log');
+    throw new FormError(payload).toJson();
   }
   //GENERACION DE TOKEN
+  console.log("prefix ", process.env.PRE_VALIDATOR);
+  
+  const mast = `${accesos}-${process.env.PRE_VALIDATOR}-${maestro}`;
   const token = jwt.sign(
-    { user: data.user, family: data.family },
+    { user: payload.user, faml: payload.family, mast },
     process.env.KEY_SECRET,
     {
-      //expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
-      expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
-      //expiresIn: 60, //expiracion del token en sg, 1 minuto
+      expiresIn: 60 * 24 * 24, //expiracion del token en sg, 1dia
+      // expiresIn: 60 * 60 * 1, //expiracion del token en sg, 1 hora
+      // expiresIn: 60, //expiracion del token en sg, 1 minuto
     }
   );
-  data.token = token;
+  payload.token = token;
   // ACTUALIZACION SESSION CON TOKEN Y VALIDACION FECHAS
   const sqlupdt = `
     SET @user = ?;
@@ -81,37 +89,40 @@ userModel.login = async (userData, callback) => {
     SELECT @error AS error, @errMsg AS errMsg, @last_date AS last_date, @flag AS flag;
   `; // Traigo la bandera con el dato de CAMBIO DE CLAVE REQUERIDO para detectar en FRONTEND
 
-  const resultUpdt = await db.query(sqlupdt, [data.user, token, data.ip]);
+  const resultUpdt = await db.query(sqlupdt, [payload.user, token, payload.ip]);
   resultUpdt.flat().forEach(e=>{
     if(e.error!==undefined){
-      data.process = e.error
-      data.message = e.errMsg
+      payload.process = e.error
+      payload.message = e.errMsg
       if(e.error===0){
-        data.lastDate = e.last_date;
-        data.flag = e.flag;
+        payload.lastDate = e.last_date;
+        payload.flag = e.flag;
       }
     }
   })
-  if (data.process !== 0) {
-    await consumeRateLimit(data.ip, data.user, userExist, "Log");
-    throw new FormError(data).toJson();
+  if (payload.process !== 0) {
+    await consumeRateLimit(payload.ip, payload.user, userExist, "Log");
+    throw new FormError(payload).toJson();
   }
-  console.log("DATA AUTORIZACION ", data);
-  await deleteRateLimit(data.ip, data.user, "Log"); //Elimino los intentos fallidos desde /login
+  console.log("payload AUTORIZACION ", payload);
+  
+  await deleteRateLimit(payload.ip, payload.user, "Log"); //Elimino los intentos fallidos desde /login
+  const data = {
+    sucess: true,
+    payload,
+  }
   callback(data);
 
 };
 
 userModel.pass = async (userData, callback) => {
- 
-  const data = {
+  const payload = {
     user: userData.user,
     mail: userData.mail,
     ip: userData.ip,
   }
-  //console.log("VALIDATE CAPTCHA ", userData.captchaPrivate, userData.captcha, userData.captchaPrivate === userData.captcha);
-  if (userData.captchaPrivate !== userData.captcha) {
-    await consumeRateLimit(data.ip, data.user, false, "Pas"); //intentos fallidos desde /login/password
+  if (userData.captchaRedis !== userData.captcha) {
+    await consumeRateLimit(payload.ip, payload.user, false, "Pas"); //intentos fallidos desde /login/password
     throw new FormError({
       process: 1,
       message: "CODIGO DE VERIFICACION INCORRECTO ",
@@ -123,12 +134,12 @@ userModel.pass = async (userData, callback) => {
             SET @mail = ?;
             SET @password = ?;
             SET @ip = ?;
-            CALL gnv2_p_new_pass(@user, @mail, @password, @ip, @error, @errMsg, @userExist);
+            CALL gnv2_p_user_new_pass(@user, @mail, @password, @ip, @error, @errMsg, @userExist);
             SELECT @error AS error, @errMsg AS errMsg, @userExist AS userExist;
             `;
   //console.log("query ", sql);
   
-  const rndom = crypt.genRand(10);
+  const rndom = crypt.genRand(12);
   const password = await crypt.encrypt(rndom);
   let userExist
   const result = await db.query(sql, [
@@ -139,21 +150,25 @@ userModel.pass = async (userData, callback) => {
   ]);
   result.flat().forEach((e) => {
     if (e.error !== undefined) {
-      data.process = e.error;
-      data.message = e.errMsg;
+      payload.process = e.error;
+      payload.message = e.errMsg;
       userExist = e.userExist ? true : false;
     }
   });
-  //console.log("data process", data, rndom);
-  if (data.process !== 0) {
-    await consumeRateLimit(data.ip, data.user, userExist, "Pas"); // intentos fallidos /login/password
-    throw new FormError(data).toJson();
+  //console.log("payload process", payload, rndom);
+  if (payload.process !== 0) {
+    await consumeRateLimit(payload.ip, payload.user, userExist, "Pas"); // intentos fallidos /login/password
+    throw new FormError(payload).toJson();
   } else {
     //envio correo
-    const sendMail = await dtoMail.labelMailNewPass(userData.user, userData.mail, userData.ip, rndom);
+    const sendMail = await dtoMail.labelMailNewPass(payload.user, payload.mail, payload.ip, rndom);
     //const sendMail = "";
-    data.idMail = sendMail;
-    await deleteRateLimit(data.ip, data.user, "Pas"); //Elimino los intentos fallidos a /login/password
+    payload.idMail = sendMail;
+    await deleteRateLimit(payload.ip, payload.user, "Pas"); //Elimino los intentos fallidos a /login/password
+    const data = {
+      success: true,
+      payload,
+    }
     callback(data);
   }
   

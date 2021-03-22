@@ -1,26 +1,40 @@
+import axios from "axios";
 import React, { createRef } from "react";
 //import { useEffect } from "react";
 import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
-import { logOutSession } from "./logOut";
+import { logOutUser } from "../../Redux/actionCreators";
+import { store } from "../../Redux/store";
 
 const subMenu = createRef();
 
-const show_profile = () => {
-  // Si eliminaron el token por devtools o hubo un error!!
-  // APLICA para para toggle menu
-  if (!localStorage.getItem("token")) {
-    window.location.href = "/";
-  }
-  subMenu.current.classList.toggle("profile_hidden");
-};
+const Profile = ({ history, user, family, profile }) => {
+  
 
-//onMouseOut={() => show_profile()}
-
-const Profile = ({ user, family, profile }) => {
+  const logOutSession = () => {
+    store.dispatch(logOutUser());
+    axios
+      .put(`${process.env.REACT_APP_API_URL}/logout/${user}`)
+      .then((res) => {
+        history.push("/");
+      })
+      .catch((error) => {
+        const { status } = error.response;
+        //console.log("ERROR LogoutSession->Profile.jsx", data);
+        //return (window.location = `/error`);
+        history.push(`/error?error=${status}`);
+      });
+  };
+    
   let menu;
-  //console.log("ENTRA AL PROFILE ", profile);
-
+  
+  const show_profile = () => {
+    // Si eliminaron el token por devtools o hubo un error!!
+    if (!localStorage.getItem("token")) {
+      logOutSession()
+    }
+    subMenu.current.classList.toggle("profile_hidden");
+  };
   if (profile) {
     // despues que termina de cargar el perfil del usuario (dispatch en href = /familia)
     menu = profile.filter(function (e) {
@@ -64,9 +78,7 @@ const Profile = ({ user, family, profile }) => {
                               <NavLink
                                 to={{
                                   pathname: `/${family}${submenu.path}`,
-                                  user: user,
-                                  master: submenu.master,
-                                  family: family,
+                                  user,//envia el usuario en el path para verificar el usuario en los componentes protected(ruta protegida)
                                 }}
                               >
                                 {submenu.rol}
@@ -81,7 +93,10 @@ const Profile = ({ user, family, profile }) => {
                 );
               })}
               <li>
-                <span onClick={() => logOutSession(user)}>Cerrar Sesion</span>
+                <NavLink to={{pathname:`/${family}/password`, user}} >Cambio de Contraseña</NavLink>
+              </li>
+              <li>
+                <span onClick={() => logOutSession()}>Cerrar Sesion</span>
               </li>
             </ul>
           </div>

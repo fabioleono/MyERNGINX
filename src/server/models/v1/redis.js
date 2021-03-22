@@ -11,6 +11,7 @@ redisClient.on("error", async (error) => {
   error.service = 'REDIS'
   //labelRedisDisconnect(error)
   //console.log("Redis NOT CONNECTED ", error);
+  // Envia correo por desconexion de redis
   try {
     await labelRedisDisconnect(error);
   } catch (error) {
@@ -23,6 +24,7 @@ redisClient.on("connect", () => {
   console.log("Redis CONNECTED: ", redisClient.connected);
   
 });
+
 
 module.exports = redisClient
 

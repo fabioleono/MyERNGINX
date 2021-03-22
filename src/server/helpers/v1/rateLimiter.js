@@ -184,9 +184,9 @@ const consumeRateLimit = async (ip, user, userExist, prefix) => {
   } catch (reject) {
     // El try-Catch capta el error y permite seguir la ejecucion de la logica en caso que se caiga el servicio de REDIS no bloquea los accesos a /login o  /login/password
     if (reject instanceof Error) {
-      //console.log("error limiter ", Error(reject));
+      //console.error("error limiter ", Error(reject));
     } else {
-       console.log("reject limiter ", reject);
+      console.log("reject limiter ", reject);
       throw new RateLimitError(dataReject).toJson();
     }
   }
@@ -208,7 +208,7 @@ const deleteRateLimit = async (ip, user, prefix) => {
     
   } catch (reject) { // El try-Catch capta el error y permite seguir la ejecucion de la logica en caso que se caiga el servicio de REDIS no bloquea los accesos a /login o  /login/password
     if (reject instanceof Error) {
-      //console.log("error deletelimiter ", Error(reject));
+      //console.error("error deletelimiter ", Error(reject));
     } else {
       //console.log("reject deletelimiter ", reject);
     }
