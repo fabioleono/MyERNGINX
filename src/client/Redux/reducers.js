@@ -1,7 +1,6 @@
 import {
   GET_USER,
   GET_PROFILE,
-  GET_ALL_WORKSHOPS,
 } from "./actions";
 
 export const userReducer = (state={}, action) => {
@@ -27,14 +26,5 @@ export const profileReducer = (state={}, action) => {
   return state
 }
 
-export const workshopReducer = (state = {}, action) => {
-  if (action.type === GET_ALL_WORKSHOPS) {
-    return {
-      ...state,
-      workshops: action.workshops
-    }
-  }
-  return state;
-};
 
 

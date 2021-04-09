@@ -8,16 +8,17 @@ import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 
+
+
 const Certificador = ({ location, user, flag  }) => {
+   
   //const user = match.params.user
   //console.log('INICIA CERTIFICADOR.JSX ');
-  // const familyProfile = location.pathname.split("/")[1];
-  // store.dispatch(getProfile(familyProfile));
-  //console.log('history', history);
-  
+    
   useEffect(() => {
+    
     const familyProfile = location.pathname
-    // console.log("path PROFILE", location.pathname);
+    //console.log("path PROFILE", location.pathname);
     store.dispatch(getProfile(familyProfile));
     
   }, [location]);

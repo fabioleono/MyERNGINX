@@ -4,23 +4,17 @@ const accessModel = require("../../../models/v1/general/accesos");
 const ctrlAccess = {};
 
 ctrlAccess.show = errorHelperCtrl(async (req, res) => {
-  // console.log("urlProf ", req.url);
-  // console.log("searchProf ", req.search);
-  // console.log("pathnameProf ", req.pathname);
-  // console.log("pathProf ", req.path);
-  // console.log("hrefProf ", req.href);
-  // console.log("rawProf ", req._raw);
-  // console.log("routeProf98 ", req.route);
-  
+  const ip = req.header("X-Forwarded-For") || req.ip;
   const master = req.masterId;
   const userId = req.params.userId;
-  const accessData = {
+  const ctrlData = {
     userId,
     master,
   }
 
   //console.log("DATA ACCESOS ", accessData);
-  await accessModel.show(accessData, (data) => {
+  await accessModel.show(ctrlData, (data) => {
+    req.log.warn(`Consulta a Rol Accesos-> usuario:${req.user} ip:${ip}`);
     res.status(200).json(data);
   });
   

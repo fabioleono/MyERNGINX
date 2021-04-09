@@ -1,10 +1,16 @@
 const FormError = require("../../error/v1/formValidatedError")
 const validation = (schema) => {
   return async (req, res, next) => {
-    //console.log('request Form ', req.body);
+    //console.log('request Form ' , req.body, req.query, req.method);
     try {
-      const validatedBody = await schema.validate(req.body);
-      req.body = validatedBody;
+      if (req.method === "POST" || req.method === "PUT") {
+        const validatedBody = await schema.validate(req.body);
+        req.body = validatedBody;
+        
+      }else if (req.method === "GET") {
+        const validatedBody = await schema.validate(req.query);
+        req.query = validatedBody;
+      } 
       next();
     } catch (error) {
       error.ip = req.header("X-Forwarded-For") || req.ip;

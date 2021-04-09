@@ -8,7 +8,7 @@ const rateLimiterApi = require('../middlewares/v1/rateLimitApi')
 const compression = require('compression')
 const errorMiddleware = require("../middlewares/v1/errorMiddleware");
 let logrotate = require("logrotator");
-const captcha = require("../middlewares/v1/captchaStore");
+// const captcha = require("../middlewares/v1/captchaStore");
 
 const app = express()
 
@@ -128,7 +128,7 @@ if (process.env.NODE_ENV === "development") {
 } 
 
 //ALmacenador de Captcha
-app.use(captcha)
+// app.use(captcha)
 
 // LIMITADOR DE SOLICITUDES
 // tambien se almacena la variable local para validar los captcha en endpoints de login
@@ -142,7 +142,7 @@ app.use(api, require(`../routes${version}/auth`)); //rutas de Autenticacion y Lo
 app.use(api, require(`../routes${version}/authPublic`)); // Rutas de autenticacion y login Usuario Info Publica
 
 const accessGeneral = new RegExp(""+ api + "/(administrador|certificador|gobierno)");
-app.use(accessGeneral, require(`../routes${version}/generalFamily`)); //rutas Accedidas por todas las familias. VERIFICACION DE TOKEN PARA TODOS LOS ENDPOINT (siempre va primero)
+app.use(accessGeneral, require(`../routes${version}/generalFamily`)); //rutas Accedidas por todas las familias. VERIFICACION DE TOKEN Y LIMITADORES DE SOLICITUD PARA TODOS LOS ENDPOINT (siempre va primero)
 
 const accessAdmin = `${api}/administrador`
 app.use(accessAdmin, require(`../routes${version}/administradorFamily`));// rutas del superusuario

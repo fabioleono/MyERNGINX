@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GET_USER, GET_PROFILE, GET_ALL_WORKSHOPS } from "./actions";
+import { GET_USER, GET_PROFILE, } from "./actions";
 const url = process.env.REACT_APP_API_URL;
 
 
@@ -14,6 +14,7 @@ export const getUser = (user, family, flag) => (dispatch) => {
 };
 
 export const getProfile = (family) => (dispatch) => {
+  
   //console.log("DISPATCH PROFILE ....");
   axios
     .get(`${url}${family}`, {
@@ -31,6 +32,7 @@ export const getProfile = (family) => (dispatch) => {
     .catch((error) => {
       const { status } = error.response;
       //console.log("ERROR DISPATCH PROFILE ", error.response.data, data);
+      //console.log("SET REDUX ");
       dispatch({
         type: GET_PROFILE,
         profile: "",
@@ -41,10 +43,9 @@ export const getProfile = (family) => (dispatch) => {
         family: "",
         flag: "",
       });
-      //console.log("SET REDUX ");
+      //console.log("SET TOKENS ");
       localStorage.removeItem("token");
       localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-      //console.log("SET TOKENS ");
       return (window.location = `/error?error=${status}`);
     });
 };
@@ -64,43 +65,6 @@ export const logOutUser = () => (dispatch) => {
   });
   localStorage.removeItem("token");
   localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-};
-
-export const getWorkshops = (family) => async (dispatch) => {
-  
-  try {
-    const res = await axios.get(`${url}/${family}/talleres`, {
-      headers: {
-        "x-access-token": localStorage.getItem("token"),
-      },
-    });
-    //console.log("DATA DISPATCH TALLERES ", res.data);
-    return dispatch({
-      type: GET_ALL_WORKSHOPS,
-      workshops: res.data,
-    });
-  } catch (error) {
-    //console.log("ERROR DISPATCH TALLERES ", error.response);
-
-    const { status } = error.response;
-    
-      dispatch({
-        type: GET_PROFILE,
-        profile: "",
-      });
-      dispatch({
-        type: GET_USER,
-        user: "",
-        family: "",
-        flag: "",
-      });
-      //console.log("SET REDUX ");
-      localStorage.removeItem("token");
-      localStorage.removeItem("persist:nIeTzScHe"); //id del token creado por persist-redux
-      //console.log("SET TOKENS ");
-      return (window.location = `/error?error=${status}`);
-  
-  }
 };
 
 

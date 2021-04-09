@@ -1,0 +1,127 @@
+{
+  "accesos": [{
+    "title": "usuarios",
+    "id": "1",
+    "aliasFields": {
+      "primary": "Usuario",
+      "field1": "Nombre",
+      "field2": "Correo",
+      "field3": "Direccion",
+      "field4": "Telefono"
+    }
+    
+  }],
+  "talleres": [{
+    "title": "Talleres",
+    "id": "2",
+    "aliasFields": {
+      "primary": "Nit",
+      "field1": "Sigla",
+      "field2": "Direccion",
+      "field3": "Telefono"
+    }
+    
+  }],
+  "familias": [{
+    "title": "Familias",
+    "id": "3",
+    "aliasFields": {
+      "primary": "Id",
+      "field1": "Familia",
+      "field2": "Modulo"
+    }
+  }],
+  "modulos": [{
+    "title": "Modulos",
+    "id": "4",
+    "aliasFields": {
+      "primary": "Id",
+      "field1": "Modulo",
+      "field2": "Descripción"
+    }
+  }],
+  "roles": [{
+    "title": "Roles",
+    "id": "5",
+    "aliasFields": {
+      "primary": "Id",
+      "field1": "Rol",
+      "field2": "Endpoint"
+    }
+  }],
+  "certificadores": [{
+    "title": "Certificadores",
+    "id": "6",
+    "aliasFields": {
+      "primary": "Nit",
+      "field1": "Sigla",
+      "field2": "Dirección",
+      "field3": "Telefono"
+    }
+  }],
+  "gubernamentales": [{
+    "title": "Organismos de Gobierno",
+    "id": "7",
+    "aliasFields": {
+      "primary": "Nit",
+      "field1": "Sigla",
+      "field2": "Dirección",
+      "field3": "Telefono"
+    }
+  }],
+  "importadores": [{
+    "title": "Importadores",
+    "id": "8",
+    "aliasFields": {
+      "primary": "Nit",
+      "field1": "Sigla",
+      "field2": "Dirección",
+      "field3": "Telefono"
+    }
+  }],
+  "ciudades": [{
+    "title": "Ciudades",
+    "id": "9",
+    "aliasFields": {
+      "primary": "Codigo DANE",
+      "field1": "Ciudad"
+    }
+  }],
+  "cilindros": [{
+    "title": "Cilindros",
+    "id": "10",
+    "aliasFields": {
+      "primary": "Id",
+      "field1": "Marca"
+    }
+  }],
+  "reguladores": [{
+    "title": "Reguladores",
+    "id": "11",
+    "aliasFields": {
+      "primary": "Id",
+      "field1": "Marca"
+    }
+  }],
+  "alarmas": [{
+    "title": "Alarmas",
+    "id": "12",
+    "aliasFields": {
+      "primary": "Id",
+      "field1": "Alarma",
+      "field2": "Categoria",
+      "field3": "Observación"
+    }
+  }],
+  "talleres/tecnicos": [{
+    "title": "Tecnicos Talleres",
+    "id": "13",
+    "aliasFields": {
+      "primary": "Cedula",
+      "field1": "Nombre",
+      "field2": "Fecha Ingreso",
+      "field3": "Taller"
+    }
+  }]
+  
+}

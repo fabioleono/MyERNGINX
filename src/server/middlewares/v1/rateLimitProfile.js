@@ -2,7 +2,7 @@ const { limiterByIpUserFt, convertMS } = require('../../helpers/v1/rateLimiter')
 
 const rateLimiterProfile = async (req, res, next) => {
   const ip = req.header("X-Forwarded-For") || req.ip;
-  const user = req.userId
+  const user = req.user
   const ipUser = `${ip}_${user}`
   //console.log("MIDDLEWARE RATE LIMIT PROFILE ");
   try {

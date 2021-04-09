@@ -1,27 +1,41 @@
 const db = require('../index')
 const redisClient = require("../redis");
-const modelWorkshop = {}
+const { promisify } = require("util");
+const ModelError = require('../../../error/v1/modelResponseError');
+const setAsync = promisify(redisClient.set).bind(redisClient);
+const workshopModel = {}
 
-modelWorkshop.show = async (master, id, callback) => {
-  let sql = ` SELECT * FROM gnv_t_taller  WHERE n_estado!='4' `;
-  if (master !== 0) {
-    sql += ` AND r_certificador=${db.escape(master)} `;
-  }
-  if (id) sql += ` AND k_taller=${db.escape(id)} `;
+workshopModel.show = async (ctrlData, callback) => {
+  const { tallerId, master, family, path } = ctrlData;
+  let sql = ` SELECT N_NIT, D_SIGLA, D_DIRECCION, D_TELEFONO FROM gnv_t_taller  WHERE n_estado!='4' `;
+  if (master !== 0) sql += ` AND r_certificador=${db.escape(master)} `;
+  if (tallerId) sql += ` AND k_taller=${db.escape(tallerId)} `;
+
   console.log(sql);
   const result = await db.query(sql);
+  
+  if(result.length===0) throw new ModelError({
+    status: 404,
+    message: "Resources Not Found",
+  }).toJson();
+
   const data = {
     success: true,
     payload: result,
   };
+  // console.log("result ", result, " data ", data);
   const dataString = JSON.stringify(data);
-  redisClient.setex("algo2", 3600, dataString, (err, data) => {
-    // no se deja que el error lo maneje el helper, ya que se necesita que la App continue si hay una desconexion de REDIS y recoja la data de mysql
-    //if(err) console.log('redis OUT ');
-  }); //almacena en Redis para Cache
-  
+  let dataCache;
+  const prefRedis = `vC_${family}_${path}_${master}:`;
+  if (redisClient.ready) {
+    // si redis esta ON almacena en CACHE
+    dataCache = await setAsync(prefRedis, dataString);
+  } else {
+    dataCache = false;
+  }
+  data.cache = dataCache;
   callback(data);
-  
+
 };
 
-module.exports = modelWorkshop;
+module.exports = workshopModel;

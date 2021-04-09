@@ -1,6 +1,5 @@
 export const GET_USER = "GET_USER";
 export const GET_PROFILE = "GET_PROFILE";
-export const GET_ALL_WORKSHOPS = "GET_ALL_WORKSHOPS";
 export const GET_ERRORS = "GET_ERRORS"
 
 

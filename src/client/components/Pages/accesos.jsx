@@ -1,74 +1,54 @@
-import axios from 'axios';
 import React, { useState } from 'react' 
 import { useEffect } from "react";
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { logOutUser } from '../../Redux/actionCreators';
-import { store } from '../../Redux/store';
+import { getAxios } from '../Atoms/functions/httpReq' 
+import Load from '../Organisms/load';
 
-const Accesos = ({ location, history }) => {
+const Accesos = ({ location, history, user }) => {
   
-  //let history = useHistory();
   const { pathname } = location;
-  //console.log('location Accesos ', location);
-  const [stateData, setStateData] = useState({success:'', payload:false});
-  const letHome = () => {
-    history.push('/contacto')
-  }
-
-  const getUsers = async (url, token) => { 
-    try {
-        const res = await axios.get(url, {
-        headers: {
-          "x-access-token": token,
-        },
-      });
-      // console.log("DATA DISPATCH ACCESOS ", res.data);
-      const { success, payload } = res.data
-      //console.log('TIPO DENTRO DE AXIOS ', success, typeof(payload));
-      setStateData({success,payload})
-      // setSuccess(success)
-    } catch (error) {
-      //console.log("ERROR DISPATCH ACCESOS ", error.response);
-      const { status } = error.response;
-      store.dispatch(logOutUser())
-      history.push(`/error?error=${status}`);
-    }
-  }
-  
+  //console.log('history AND user ', history, user);
+  const [stateData, setStateData] = useState({success:false, payload:''});
+ 
   useEffect(() => {
+    const abortCtrl = new AbortController();
     const { pathname } = location;
     const api = process.env.REACT_APP_API_URL;
-    const token = localStorage.getItem("token");
     const url = `${api}${pathname}`;
-    getUsers(url, token);  
-  }, [location]);
+    const token = localStorage.getItem("token");
+    const run = async () => {
+      const dataAxios = await getAxios(user, url, token, history, abortCtrl);
+      //console.log("dataAxios ", dataAxios);
+      setStateData({
+        success: dataAxios.success,
+        payload: dataAxios.payload,
+      });
+    };
+    run();
+    return () => {
+      console.log("DESMONTANDO");
+      abortCtrl.abort();
+    };
+  }, [location, history, user]);
   
-  // console.log("SUccess Data ", stateSuccess);
-  // console.log("Data ACCESOS", stateData);
+  console.log("Data ACCESOS", stateData);
  
-  
-  
   return (
     <>
       {!stateData.payload ? (
-        <div id="loader">
-          {/* montar en Hook , con gif no carga inmediato se pierde el estado false*/}
-          <svg>
-            <circle cx="70" cy="70" r="30"></circle>
-          </svg>
-          
-        </div>
+        <Load></Load>
         // <p>formamndo</p>
       ) : stateData.success === true ? (
         <div>
-          <h1 onClick={letHome.bind()}>USUARIOS CERTIGNV</h1>
+          <h1 >USUARIOS CERTIGNV</h1>
           <table>
             <thead>
               <tr>
                 <td>Usuario</td>
                 <td>Nombre</td>
                 <td>Correo</td>
-                <td>Direccion</td>
+                <td>Dirección</td>
                 <td>Telefono</td>
               </tr>
             </thead>
@@ -95,8 +75,87 @@ const Accesos = ({ location, history }) => {
         //trae los datos de los limitadores de solicitud
         <p>{JSON.stringify(stateData.payload)}</p>
       )}
+      
     </>
   );
 }
 
-export default Accesos
+const mapStateToProps = (state) => ({
+  user: state.userReducer.user,
+}); 
+export default connect(mapStateToProps,{})(Accesos)
+
+
+//-- USEEFFECT Modelo A - AbortController
+// useEffect(() => {
+//   const abortCtrl = new AbortController();
+//   const { pathname } = location;
+//   const api = process.env.REACT_APP_API_URL;
+//   const url = `${api}${pathname}`;
+//   const token = localStorage.getItem("token");
+//   const run = async () => {
+//       try {
+//         const res = await axios.get(url, {
+//           headers: {
+//             "x-access-token": token,
+//           },
+//           signal: abortCtrl.signal
+//         });
+//         console.log("DATA DISPATCH ACCESOS ", res.data);
+//         const { success, payload } = res.data;
+//         setStateData({success,payload})
+
+//       } catch (error) {
+//         console.log("ERROR DISPATCH ACCESOS ", error.response);
+//         const { status } = error.response;
+//         history.push(`/error?error=${status}`);
+//         outSession(user)
+
+//       }
+//     }
+// run()
+//   return () => {
+//     console.log("DESMONTANDO");
+//     abortCtrl.abort();
+//   };
+// }, [location, history, user]);
+//-----
+
+
+// -- USEEFFECT MODELO B CON axios cancel
+// useEffect(() => {
+// const { pathname } = location;
+//   const api = process.env.REACT_APP_API_URL;
+//   const url = `${api}${pathname}`;
+//   const token = localStorage.getItem("token");
+//  let source = axios.CancelToken.source();
+//  const run = async () => {
+//    try {
+//      const res = await axios.get(url, {
+//        headers: {
+//          "x-access-token": token,
+//        },
+//        cancelToken: source.token,
+//      });
+//      console.log("DATA DISPATCH ACCESOS ", res.data);
+//      const { success, payload } = res.data;
+//      setStateData({ success, payload });
+//    } catch (error) {
+//      console.log("ERROR DISPATCH ACCESOS ", error.response);
+//      const { status } = error.response;
+//      history.push(`/error?error=${status}`);
+//      outSession(user);
+//      // if(axios.isCancel(error)){
+//      //   console.log('CAUGHT CANCEL');
+//      // }else {
+//      //   throw error
+//      // }
+//    }
+//  }; 
+// run()
+//   return () => {
+//     console.log("DESMONTANDO");
+//     source.cancel();
+//   };
+// }, [location, history, user]);
+//----

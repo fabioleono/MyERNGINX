@@ -3,8 +3,11 @@ const RateLimitError = require('../../error/v1/rateLimitError');
 const dtoMail = require('../../dto/v1/mail/labelsMail')
 
 const rateLimiterApi = async (req, res, next) => {
+  //console.log('req', req);
+  
   const ip = req.header("X-Forwarded-For") || req.ip;
   const user = req.body.user
+  //console.log("req.query", req.query);// viene del captcha
   //console.log('MIDDLEWARE RATE LIMIT API ');
   const dataReject = {
     name: "Rate Limit Error",

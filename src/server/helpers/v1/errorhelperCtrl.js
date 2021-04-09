@@ -17,8 +17,11 @@ const errorHelperCtrl = (callback) => {
       if (error.name === "Form Validation Error") {
         // Error por validaciones  procedimientos DB
         return res.status(error.status).json(error);
+      } else if (error.name === "Model Error") {
+        // Error por Recurso no encontrado en la BD
+        return res.status(error.status).json(error);
       } else if (error.name === "Rate Limit Error") {
-        // Error por limitacion de solicitudes 
+        // Error por limitacion de solicitudes
         return res.status(error.status).json(error);
       } else {
         return res.status(500).json({

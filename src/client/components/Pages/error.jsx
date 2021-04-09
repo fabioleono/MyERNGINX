@@ -1,25 +1,37 @@
-import React from "react";
-//import { useEffect } from "react";
-//import { connect } from "react-redux";
-// import { setUser } from "../../Redux/actionCreators";
-// import { store } from "../../Redux/store";
+import React, { useEffect } from "react";
+import { logOutUser } from "../../Redux/actionCreators";
+import { store } from "../../Redux/store";
+
 
 
 const Error = ({ location }) => {
   const params = new URLSearchParams(location.search);
   const error = params.get("error");
-   
-  // useEffect(() => {
-  //   
-  //   window.addEventListener("load", () => {
-  //    
-  //   });
-  // }, [location]);
+  console.log("location error ", location);
+  
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      console.log("NO hya to0ken en page error");
+      store.dispatch(logOutUser());
+      //outSession();
+      //history.push("/");
+    }
+
+    // window.addEventListener("load", () => {
+  
+    // });
+  }, [location]);
   return (
     <div>
-      {error && (
+      {error ? (
         <div>
           <h2>UNA LINDA PAGINA DE ERROR {error} </h2>
+          <p>ERROR </p>
+        </div>
+      ) : (
+        <div>
+          <h2>ERROR  401 UNAUTHORIZED </h2>
           <p>ERROR </p>
         </div>
       )}

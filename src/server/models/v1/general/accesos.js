@@ -1,14 +1,14 @@
 const db = require('../index')
 const accessModel = {}
 
-accessModel.show = async (accessData, callback) => {
-  
+accessModel.show = async (ctrlData, callback) => {
+  const { master, userId } = ctrlData;
 // Hacer una vista para los usuarios
   let sql = ` SELECT K_USUARIO, D_NOMBRE, D_CORREO, D_DIRECCION, D_TELEFONO FROM gnv_t_usuario  WHERE  n_estado!=8 `;
-  if (parseInt(accessData.master) !== 0) {
-    sql += ` AND n_maestro=${db.escape(accessData.master)} `;
+  if (parseInt(master) !== 0) {
+    sql += ` AND n_maestro=${db.escape(master)} `;
   }
-  if (accessData.userId) sql += ` AND k_usuario=${db.escape(accessData.userId)} `;
+  if (userId) sql += ` AND k_usuario=${db.escape(userId)} `;
 
 
   console.log(sql);

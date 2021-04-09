@@ -1,46 +1,28 @@
-//const userProfile = require('../../../models/v1/certificador/profile')
-//const { RateLimiterMemory } = require("rate-limiter-flexible");
+const errorHelperCtrl = require("../../../helpers/v1/errorhelperCtrl");
+const technicalsModel = require("../../../models/v1/certificador/tecnicosTaller");
 const ctrlTechnical = {};
 
-
-
-
-ctrlTechnical.show = (req, res, next) => {
-
-    const ip = req.header("X-Forwarded-For") || req.ip;
-    
-    //const respHeaders = res.getHeaders();
-    // console.log(
-    //   typeof respHeaders["rate"],
-    //   JSON.parse(respHeaders["rate"]),
-    //   JSON.parse(respHeaders["rate"]).remainingPoints,
-    //   parseInt(respHeaders["remaining"])
-    // );
-    //console.log("remaining ", JSON.parse(respHeaders["rate"]));
-    
-    
-  res.status(200).json({name: 'tecnicos taller'});
-
+ctrlTechnical.show = errorHelperCtrl(async (req, res) => {
+  const ip = req.header("X-Forwarded-For") || req.ip;
+  //  console.log("path tecnicos taller", req.path, 'Familia ', req.familyId);
+  const ctrlData = {
+    tecnicoId: req.params.tecnicoId,
+    master: req.masterId,
+    family: req.familyId,
+    path: req.path
+  };
   
-
-
-  // userProfile.menu(user, (err, data) => {
-  //   if (!err) {
-  //     res.status(200).json(data);
-  //     //console.log('tipo de dato', typeof(data))
-  //     //console.log(data);
-
-  //   } else {
-  //     console.log("Mysql Error: ", err);
-
-  //     res.status(500).json({
-  //       success: false,
-  //       message: "Error ",
-  //       data: err,
-  //     });
-  //   }
-  // });
-};;
+  await technicalsModel.show(ctrlData, (data) => {
+    if(!data.cache) req.log.error(
+      `Error REDIS CACHE en Rol Tecnicos Taller -> usuario:${req.user} ip:${ip}`
+    );
+    req.log.warn(
+      `Consulta a Rol Tecnicos Talleres-> usuario:${req.user} ip:${ip}`
+    );
+    delete data.cache
+    res.status(200).json(data);
+  });
+});
 
 ctrlTechnical.update = (req, res) => {
   console.log("Orig ", req.originalUrl," url ",req.url," params ",req.params  );

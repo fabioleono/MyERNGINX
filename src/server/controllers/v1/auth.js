@@ -1,6 +1,5 @@
 const userModel = require("../../models/v1/auth");
 const errorHelperCtrl = require('../../helpers/v1/errorhelperCtrl');
-//const { delRateLimit } = require("./rateLimiter");
 const ctrlAuth = {};
 const FormError = require("../../error/v1/formValidatedError");
 const svgCaptcha = require("svg-captcha");
@@ -10,8 +9,10 @@ const getAsync = promisify(redisClient.get).bind(redisClient);
 
 
 ctrlAuth.captcha = (req, res) => {
-  const userInpt = req.query.userInpt
   const ip = req.header("X-Forwarded-For") || req.ip;
+  // const slow = req.slowDown;
+  // console.log('Slow CAPTCHA', slow, ' ip ', ip);
+  const userInpt =req.query.user
   const conf = {
     size: 1,
     ignoreChars: "0Oo1il", // filter out some characters like 0o1i
@@ -26,12 +27,15 @@ ctrlAuth.captcha = (req, res) => {
   let captcha = svgCaptcha.create(conf);
   res.type("svg");
   //console.log("original--> ", captcha.text);
-  let prefix
+  let prefix;
   // Cambia el prefijo REDIS si el endpoint viene de /login O /login/password
   req.path.includes("password") ? (prefix = "vH_Pas") : (prefix = "vH_Log");
   const dataKey = `${prefix}:${ip}_${userInpt}`;
   redisClient.setex(dataKey, 60, captcha.text, (err, data) => {
-    if(err) req.log.error(`Error REDIS Generacion Captcha -> usuario:${userInpt} ip:${ip} error:${err}`);
+    if (err)
+      req.log.error(
+        `Error REDIS Generacion Captcha -> usuario:${userInpt} ip:${ip} error:${err}`
+      );
   });
   res.status(200).send(captcha.data);
 };
@@ -39,6 +43,9 @@ ctrlAuth.captcha = (req, res) => {
 ctrlAuth.login = errorHelperCtrl(async (req, res) => {
   // console.log("Body ", req.body);
   const ip = req.header("X-Forwarded-For") || req.ip;
+  // const slow = req.slowDown;
+  // console.log("SLOW LOGIN ", slow);
+  
   const { user, pass, captcha } = req.body;
   //console.log('captcha Usuario', captcha);
   //console.log('REDIS ', redisClient.ready);
@@ -67,11 +74,10 @@ ctrlAuth.login = errorHelperCtrl(async (req, res) => {
 });
 
 
-
 ctrlAuth.pass = errorHelperCtrl(async (req, res) => {
-  //const slow = req.slowDown;
   //console.log('Body ', req.body);
-  //console.log('limitador velocidad /login/password', slow)
+  // const slow = req.slowDown;
+  // console.log('SLOW LOGIN PASSWORD', slow)
   const { user, mail, captcha } = req.body;
   const ip = req.header("X-Forwarded-For") || req.ip;
   const dataKey = `vH_Pas:${ip}_${user}`;
@@ -88,20 +94,25 @@ ctrlAuth.pass = errorHelperCtrl(async (req, res) => {
     captchaRedis,
     captcha,
   };
-  
+
   await userModel.pass(userData, (data) => {
-   // console.log('data response ', data);
+    // console.log('data response ', data);
     if (data.payload.idMail instanceof Error) {
-      req.log.error(`Error Servicio de Correo ->userModel.pass: ${Error(data.payload.idMail)}`)
+      req.log.error(
+        `Error Servicio de Correo ->userModel.pass: ${Error(
+          data.payload.idMail
+        )}`
+      );
       throw new FormError({
         process: 1,
         message: "EN ESTE MOMENTO NO PODEMOS RECUPERAR LA CONTRASEÑA ",
       }).toJson();
     } else {
-      req.log.warn(`Recover Password WEB-> usuario:${user} ip:${ip} correo:${mail} idMail:${data.payload.idMail}`);
+      req.log.warn(
+        `Recover Password WEB-> usuario:${user} ip:${ip} correo:${mail} idMail:${data.payload.idMail}`
+      );
       res.status(200).json(data);
     }
-    
   });
 });
 

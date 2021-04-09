@@ -15,7 +15,7 @@ ctrl.changePass = errorHelperCtrl(async(req, res) => {
   //console.log("body", req.body);
   const { pass, new_pass } = req.body;
   const ip = req.header("X-Forwarded-For") || req.ip;
-  const user = req.userId;
+  const user = req.user;
   const passData = {
     user,
     ip,

@@ -1,15 +1,15 @@
 import React from 'react' 
 import { NavLink } from 'react-router-dom'
-import PrivateMenu from "../Molecules/privateMenu";
-import PrivateInfoMenu from "../Molecules/privateInfoMenu";
-import PublicMenu from "../Molecules/publicMenu";
-import PublicInfoMenu from "../Molecules/publicInfoMenu";
+// import PrivateInfoMenu from "../Molecules/privateInfoMenu";
+// import PublicInfoMenu from "../Molecules/publicInfoMenu";
 import Profile from '../Molecules/profile';
-//import ProfilePublic from '../Molecules/profilePublic'
+
+import PublicMenu from '../Molecules/publicMenu' 
+import PrivateMenu from '../Molecules/privateMenu' 
 import { connect } from 'react-redux';
 
-const NavMenu = ( { profile, user  }) => {
-
+const NavMenu = ( { profile, user, family  }) => {
+  
 
   return (
     <>
@@ -28,20 +28,25 @@ const NavMenu = ( { profile, user  }) => {
             <li>
               <NavLink to="/contacto">Contactenos</NavLink>
             </li>
-
-            {localStorage.getItem("token") && profile ? (
+            {user ? (
+            <li><PrivateMenu family={family} /></li>
+            ) : (
+            <li><PublicMenu /></li>
+            )}
+            
+            {/* {localStorage.getItem("token") && profile ? (
               <PrivateMenu />
             ) : (
               <PublicMenu />
-            )}
-            {localStorage.getItem("tokenPublic") ? (
+            )} */}
+            {/* {localStorage.getItem("tokenPublic") ? (
               <PrivateInfoMenu />
             ) : (
               <PublicInfoMenu />
-            )}
+            )} */}
           </ul>
         </nav>
-        {localStorage.getItem("token") && profile ? (
+        {profile ? (
           <Profile />
         ) : (
           <div className="user_Profile">
@@ -61,6 +66,7 @@ const NavMenu = ( { profile, user  }) => {
 
 const mapStateToProps = (state) => ({
   user: state.userReducer.user,
+  family :state.userReducer.family,
   profile: state.profileReducer.profile,
   // consumer: state.publicReducer.consumer,
 }); 
